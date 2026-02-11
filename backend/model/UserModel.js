@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
         unique: true,
         lowercase: true,
         trim: true,
-        match: [/^\S+@\S+\.\S+$/, 'الرجاء إدخال بريد إلكتروني صحيح']
+        // match: [/^\S+@\S+\.\S+$/, 'الرجاء إدخال بريد إلكتروني صحيح']
     },
     password: { 
         type: String, 
@@ -48,26 +48,42 @@ const userSchema = new mongoose.Schema({
         {
             street: { type: String, trim: true },
             city: { type: String, trim: true },
-            state: { type: String, trim: true },
+            region : { type: String, trim: true },
             postalCode: { type: String, trim: true }, // رمز بريدي
-        }
+        },
     ],
+    refreshToken: {
+        type: String,
+        select: false // عشان لما نجيب بيانات المستخدم ما يطلع لنا الريفرش توكن
+    }
 }, { timestamps: true });
 
 // Generate auth token
-userSchema.methods.generateAuthToken = function() { // عشان نولد التوكن
-    return jwt.sign({ _id: this._id, role: this.role}, process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRES_IN}); // عشان نستخدم الـ id والـ role في التوكن عشان نتحقق منهم بعدين
+userSchema.methods.generateAccessToken = function () { // عشان نولد توكن جديد لما المستخدم يسجل دخول أو يجدد التوكن
+    return jwt.sign(
+        { _id: this._id, role: this.role },
+        process.env.JWT_ACCESS_SECRET,
+        { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN }
+    );
+};
+
+// Generate refresh token
+userSchema.methods.generateRefreshToken = function () {
+    return jwt.sign(
+        { _id: this._id },
+        process.env.JWT_REFRESH_SECRET,
+        { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN }
+    );
 };
 
 // Hash password before saving
-userSchema.pre('save', async function(next) { // عشان نعمل هاش للباسورد قبل ما نحفظه في الداتا بيز
+userSchema.pre('save', async function() { // عشان نعمل هاش للباسورد قبل ما نحفظه في الداتا بيز
     if (!this.isModified('password')){
-        return next(); // لو الباسورد ما تغيرش ما نعملش هاش جديد
+        return; // إذا الباسورد ما تم تعديله، ما نعمل هاش جديد
     }
 
     const salt = await bcrypt.genSalt(10); // نولد سولت
     this.password = await bcrypt.hash(this.password, salt); // نعمل هاش للباسورد باستخدام السولت
-    next();
 });
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);

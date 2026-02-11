@@ -16,9 +16,9 @@ app.use(cors ({
 app.use(express.json());
 
 // Define routes
-app.get("/", (req, res) => {
-  res.send("SmartCart AI API Running...");
-});
+const authRoute = require('./routes/authRoute.js');
+
+app.use('/api/auth', authRoute);
 
 // start the server
 const PORT = process.env.PORT || 5000;

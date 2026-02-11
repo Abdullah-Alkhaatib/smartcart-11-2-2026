@@ -8,7 +8,7 @@ function verifyToken(req, res, next) {
 
     const token = authToken.split(" ")[1]; // عشان نجيب التوكن نفسه من السترينج
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET); // عشان نتحقق من صحة التوكن
+        const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET); // عشان نتحقق من صحة التوكن
         req.user = { _id: decoded._id, role: decoded.role }; // عشان نحط بيانات المستخدم في الريكويست عشان نستخدمها بعدين
         next(); // عشان نكمل تنفيذ الريكويست
     } catch (error) {
