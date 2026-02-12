@@ -5,8 +5,8 @@ const {
     register,
     login,
     me,
-    refreshTokenHandler,
-    logout
+    // refreshTokenHandler,
+    // logout
 } = require('../controller/authController.js');
 
 const {verifyToken} = require('../middleware/verifyToken.js');
@@ -21,9 +21,9 @@ router.post('/login', login);
 router.get('/me', verifyToken, me);
 
 // Refresh token route
-router.post('/refresh-token', refreshTokenHandler);
+// router.post('/refresh-token', refreshTokenHandler);
 
 // Logout route
-router.post('/logout', verifyToken, logout);
+// router.post('/logout', verifyToken, logout);
 
 module.exports = router;

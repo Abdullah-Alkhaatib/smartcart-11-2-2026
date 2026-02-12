@@ -15,10 +15,16 @@ app.use(cors ({
 
 app.use(express.json());
 
+app.use('/images', express.static(__dirname + '/public/images')); // عشان نقدر نوصل للصور من خلال المسار /images
+
 // Define routes
 const authRoute = require('./routes/authRoute.js');
+const userRoute = require('./routes/userRoute.js');
+const categoryRoute = require('./routes/categoryRoute.js');
 
 app.use('/api/auth', authRoute);
+app.use('/api/users', userRoute);
+app.use('/api/categories', categoryRoute);
 
 // start the server
 const PORT = process.env.PORT || 5000;

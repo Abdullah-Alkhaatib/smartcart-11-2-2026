@@ -52,10 +52,14 @@ const userSchema = new mongoose.Schema({
             postalCode: { type: String, trim: true }, // رمز بريدي
         },
     ],
-    refreshToken: {
-        type: String,
-        select: false // عشان لما نجيب بيانات المستخدم ما يطلع لنا الريفرش توكن
-    }
+    isDeleted: { // عشان نعلم إذا كان المستخدم محذوف أو لأ، بدل ما نحذف البيانات من الداتا بيز
+        type: Boolean,
+        default: false,
+    },
+    // refreshToken: {
+    //     type: String,
+    //     select: false // عشان لما نجيب بيانات المستخدم ما يطلع لنا الريفرش توكن
+    // }
 }, { timestamps: true });
 
 // Generate auth token
@@ -68,13 +72,13 @@ userSchema.methods.generateAccessToken = function () { // عشان نولد تو
 };
 
 // Generate refresh token
-userSchema.methods.generateRefreshToken = function () {
-    return jwt.sign(
-        { _id: this._id },
-        process.env.JWT_REFRESH_SECRET,
-        { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN }
-    );
-};
+// userSchema.methods.generateRefreshToken = function () {
+//     return jwt.sign(
+//         { _id: this._id },
+//         process.env.JWT_REFRESH_SECRET,
+//         { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN }
+//     );
+// };
 
 // Hash password before saving
 userSchema.pre('save', async function() { // عشان نعمل هاش للباسورد قبل ما نحفظه في الداتا بيز

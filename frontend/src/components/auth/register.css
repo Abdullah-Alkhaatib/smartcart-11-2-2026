@@ -9,6 +9,16 @@
   font-family: "Inter", "Segoe UI", sans-serif;
 }
 
+/* Password wrapper */
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  width: 100%;
+  /* padding-right: 45px; */
+}
+
 
 /* Card */
 .register-card {
