@@ -22,7 +22,7 @@ const createCategory = async (req, res) => {
       name,
       description: description || "",
       ...(image && { image }), // Add image only if provided
-    });
+    }); 
 
     await category.save();
 
@@ -160,6 +160,38 @@ const deleteCategory = async (req, res) => {
 //   }
 // };
 
+
+const getAllCategoriesAdmin = async (req, res) => {
+  try {
+    const categories = await Category.find().sort({ createdAt: -1 });
+    res.status(200).json(categories);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to get categories" });
+  }
+};
+
+const toggleCategoryStatus = async (req, res) => {
+  try {
+    const category = await Category.findById(req.params.id);
+
+    if (!category) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+
+    category.isActive = !category.isActive;
+
+    await category.save();
+
+    res.status(200).json({
+      message: "Category status updated",
+      isActive: category.isActive,
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update category" });
+  }
+};
+
 module.exports = {
   createCategory,
   getAllCategories,
@@ -167,4 +199,6 @@ module.exports = {
   updateCategory,
   deleteCategory,
 //   forceDeleteCategory,
+  getAllCategoriesAdmin,
+  toggleCategoryStatus,
 };

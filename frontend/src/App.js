@@ -47,6 +47,7 @@ function App() {
               <Route path="/profile" element={<Dashboard />} />
               <Route path="/users" element={<Dashboard />} />
               <Route path="/categories" element={<Dashboard />} />
+              <Route path="/products" element={<Dashboard />} />
               <Route path="/logout" element={<Dashboard />} />
             </>
           ) : (

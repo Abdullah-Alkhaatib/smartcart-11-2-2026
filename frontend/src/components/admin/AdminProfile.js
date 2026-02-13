@@ -176,6 +176,7 @@ const AdminProfile = () => {
                   <input
                     type="text"
                     name="username"
+                    dir="auto"
                     value={form.username}
                     onChange={handleChange}
                     placeholder="اسم المستخدم"
@@ -186,6 +187,7 @@ const AdminProfile = () => {
                   <input
                     type="email"
                     name="email"
+                    dir="ltr"
                     value={form.email}
                     onChange={handleChange}
                     placeholder="name@example.com"

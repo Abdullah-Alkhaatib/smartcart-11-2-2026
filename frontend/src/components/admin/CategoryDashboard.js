@@ -2,7 +2,14 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./categoryDashboard.css";
 import toast from "react-hot-toast";
-import { Trash2, LayoutGrid, RefreshCw, Edit2 } from "lucide-react";
+import {
+  Trash2,
+  LayoutGrid,
+  RefreshCw,
+  Edit2,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import API_URL from "../../config/api";
 
 export default function CategoryDashboard() {
@@ -20,15 +27,18 @@ export default function CategoryDashboard() {
 
   const token = localStorage.getItem("token");
 
-  // Fetch all categories
+  // Fetch all categories (admin)
   const fetchCategories = async () => {
     setRefreshing(true);
     try {
-      const response = await axios.get(`${API_URL}/api/categories/get-all-categories`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await axios.get(
+        `${API_URL}/api/categories/get-all-categories-admin`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
       setCategories(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error(error);
@@ -125,12 +135,16 @@ export default function CategoryDashboard() {
     }
 
     try {
-      await axios.put(`${API_URL}/api/categories/update-category/${editingId}`, form, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
+      await axios.put(
+        `${API_URL}/api/categories/update-category/${editingId}`,
+        form,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
         },
-      });
+      );
 
       toast.success("تم تحديث الفئة بنجاح");
       setFormData({ name: "", description: "", image: null });
@@ -185,6 +199,39 @@ export default function CategoryDashboard() {
     }
   };
 
+  // Toggle category status (active/hidden)
+  const handleToggleStatus = async (id) => {
+    if (!token) {
+      toast.error("الرجاء تسجيل الدخول كمسؤول");
+      return;
+    }
+
+    try {
+      const response = await axios.put(
+        `${API_URL}/api/categories/toggle-category-status/${id}`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      setCategories((prev) =>
+        prev.map((cat) =>
+          cat._id === id ? { ...cat, isActive: response.data.isActive } : cat,
+        ),
+      );
+
+      toast.success(
+        response.data.isActive ? "تم تفعيل الفئة" : "تم إخفاء الفئة",
+      );
+    } catch (error) {
+      console.error(error);
+      toast.error("تعذر تحديث حالة الفئة");
+    }
+  };
+
   // Resolve image URL
   const resolveImageUrl = (value) => {
     if (!value) return "";
@@ -229,6 +276,7 @@ export default function CategoryDashboard() {
                 type="text"
                 id="name"
                 name="name"
+                dir="auto"
                 value={formData.name}
                 onChange={handleInputChange}
                 placeholder="اسم الفئة"
@@ -241,6 +289,7 @@ export default function CategoryDashboard() {
               <textarea
                 id="description"
                 name="description"
+                dir="auto"
                 value={formData.description}
                 onChange={handleInputChange}
                 placeholder="وصف الفئة (اختياري)"
@@ -311,7 +360,16 @@ export default function CategoryDashboard() {
                     className="category-image"
                   />
                   <div className="category-info">
-                    <h4>{category.name}</h4>
+                    <div className="category-title">
+                      <h4>{category.name}</h4>
+                      <span
+                        className={`category-status ${
+                          category.isActive ? "is-active" : "is-hidden"
+                        }`}
+                      >
+                        {category.isActive ? "نشطة" : "مخفية"}
+                      </span>
+                    </div>
                     {category.description && (
                       <p className="category-description">
                         {category.description}
@@ -322,6 +380,20 @@ export default function CategoryDashboard() {
                     </p>
                   </div>
                   <div className="category-actions">
+                    <button
+                      type="button"
+                      className={`status-btn ${
+                        category.isActive ? "is-active" : "is-hidden"
+                      }`}
+                      onClick={() => handleToggleStatus(category._id)}
+                      title={category.isActive ? "إخفاء" : "تفعيل"}
+                    >
+                      {category.isActive ? (
+                        <EyeOff size={16} />
+                      ) : (
+                        <Eye size={16} />
+                      )}
+                    </button>
                     <button
                       type="button"
                       className="edit-btn"

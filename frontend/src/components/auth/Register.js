@@ -63,6 +63,7 @@ export default function Register() {
           <input
             type="text"
             placeholder="Username"
+            dir="auto"
             value={username}
             onChange={(e)=>setUsername(e.target.value)}
             required
@@ -71,6 +72,7 @@ export default function Register() {
           <input
             type="email"
             placeholder="Email"
+            dir="ltr"
             value={email}
             onChange={(e)=>setEmail(e.target.value)}
             required
@@ -81,6 +83,7 @@ export default function Register() {
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
+              dir="auto"
               value={password}
               onChange={(e)=>setPassword(e.target.value)}
               required
@@ -99,6 +102,7 @@ export default function Register() {
             <input
               type={showConfirmPassword ? "text" : "password"}
               placeholder="Confirm Password"
+              dir="auto"
               value={confirmPassword}
               onChange={(e)=>setConfirmPassword(e.target.value)}
               required

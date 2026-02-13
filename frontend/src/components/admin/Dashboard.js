@@ -9,15 +9,13 @@ import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { DemoProvider, useDemoRouter } from '@toolpad/core/internal';
 import AdminProfile from "./AdminProfile";
 import { useLocation, useNavigate } from 'react-router-dom';
-// import icon users
 import UserIcon from '@mui/icons-material/Person';
-// import DashboardUsers from './DashboardUsers';
 import LogoutIcon from '@mui/icons-material/Logout';
-// import CategoryDashboard from './CategoryDashboard';
 import CategoryIcon from '@mui/icons-material/Category';
 import DashboardUsers from './DashboardUsers';
 import CategoryDashboard from './CategoryDashboard';
-// import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
+import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
+import ProductDashboard from './ProductDashboard';
 // import ProductDashboard from './ProductDashboard';
 // import MessageIcon from '@mui/icons-material/Message';
 // import ContentDashboard from './ContentDashboard';
@@ -50,6 +48,11 @@ const NAVIGATION = [
     segment: 'categories',
     title: 'الأقسام',
     icon: <CategoryIcon />
+  },
+  {
+    segment: 'products',
+    title: 'المنتجات',
+    icon: <ProductionQuantityLimitsIcon />
   },
   {
     segment: 'logout',
@@ -92,6 +95,7 @@ function DemoPageContent({ pathname }) {
       {pathname === '/profile' ? <AdminProfile /> : null}
       {pathname === '/users' ? <DashboardUsers /> : null}
       {pathname === '/categories' ? <CategoryDashboard /> : null}
+      {pathname === '/products' ? <ProductDashboard /> : null}
       {pathname === '/logout' ? handleLogout() : null}
     </Box>
   );

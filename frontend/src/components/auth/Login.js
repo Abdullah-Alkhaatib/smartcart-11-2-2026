@@ -53,6 +53,7 @@ export default function Login() {
                     <input
                         type="email"
                         placeholder="Email"
+                        dir="ltr"
                         value={email}
                         onChange={(e)=>setEmail(e.target.value)}
                         required
@@ -63,6 +64,7 @@ export default function Login() {
                         <input
                             type={showPassword ? "text" : "password"}
                             placeholder="Password"
+                            dir="auto"
                             value={password}
                             onChange={(e)=>setPassword(e.target.value)}
                             required

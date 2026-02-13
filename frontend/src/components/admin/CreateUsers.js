@@ -102,6 +102,7 @@ const CreateUsers = ({ onCreated }) => {
             <input
               type="text"
               name="username"
+              dir="auto"
               value={form.username}
               onChange={handleChange}
               placeholder="اسم المستخدم"
@@ -113,6 +114,7 @@ const CreateUsers = ({ onCreated }) => {
             <input
               type="email"
               name="email"
+              dir="ltr"
               value={form.email}
               onChange={handleChange}
               placeholder="name@example.com"
@@ -125,6 +127,7 @@ const CreateUsers = ({ onCreated }) => {
             <input
               type="password"
               name="password"
+              dir="auto"
               value={form.password}
               onChange={handleChange}
               placeholder="********"

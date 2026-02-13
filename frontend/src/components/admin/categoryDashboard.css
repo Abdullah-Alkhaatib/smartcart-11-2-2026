@@ -254,11 +254,38 @@
   gap: 4px;
 }
 
+.category-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .category-info h4 {
   margin: 0;
   font-size: 15px;
   color: #f8fafc;
   font-weight: 600;
+}
+
+.category-status {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.category-status.is-active {
+  background: rgba(34, 197, 94, 0.16);
+  color: #86efac;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+}
+
+.category-status.is-hidden {
+  background: rgba(248, 113, 113, 0.16);
+  color: #fecaca;
+  border: 1px solid rgba(248, 113, 113, 0.35);
 }
 
 .category-description {
@@ -282,6 +309,7 @@
   gap: 8px;
 }
 
+.status-btn,
 .edit-btn,
 .delete-btn {
   display: inline-flex;
@@ -293,6 +321,26 @@
   border-radius: 10px;
   cursor: pointer;
   transition: 0.3s ease;
+}
+
+.status-btn {
+  background: rgba(148, 163, 184, 0.12);
+  color: #e2e8f0;
+}
+
+.status-btn.is-active {
+  background: rgba(34, 197, 94, 0.15);
+  color: #86efac;
+}
+
+.status-btn.is-hidden {
+  background: rgba(248, 113, 113, 0.15);
+  color: #fecaca;
+}
+
+.status-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 15px rgba(15, 23, 42, 0.25);
 }
 
 .edit-btn {
@@ -385,7 +433,8 @@
   }
 
   .edit-btn,
-  .delete-btn {
+  .delete-btn,
+  .status-btn {
     width: 32px;
     height: 32px;
   }
