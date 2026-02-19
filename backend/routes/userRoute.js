@@ -8,7 +8,6 @@ const {
   deleteUser,
   getUserProfile,
   updatePassword,
-  
 } = require("../controller/userController");
 const {
   verifyToken,
@@ -21,7 +20,12 @@ const upload = require("../middleware/photoUpload"); // استيراد middlewar
 // Routes
 
 // POST /api/users/create-user - Create new user (Admin only)
-router.post("/create-user", verifyAdmin, upload.single("profilePicture"), createUser);
+router.post(
+  "/create-user",
+  verifyAdmin,
+  upload.single("profilePicture"),
+  createUser,
+);
 
 // GET /api/users/get-all-users - Get all users (Admin only)
 router.get("/get-all-users", verifyAdmin, getAllUsers);
@@ -33,7 +37,12 @@ router.get("/profile", verifyToken, getUserProfile);
 router.put("/password", verifyToken, updatePassword);
 
 // GET /api/users/get-single/:id - Get single user (Admin or user themselves)
-router.get("/get-single/:id", validObjectId, verifyTokenAndAuthorization, getSingleUser);
+router.get(
+  "/get-single/:id",
+  validObjectId,
+  verifyTokenAndAuthorization,
+  getSingleUser,
+);
 
 // PUT /api/users/update-user/:id - Update user (Admin or user themselves)
 router.put(
@@ -44,7 +53,12 @@ router.put(
   updateUser,
 );
 
-// DELETE /api/users/delete-user/:id - Delete user (Admin only)
-router.delete("/delete-user/:id", validObjectId, verifyAdmin, deleteUser);
+// DELETE /api/users/delete-user/:id - Delete user (Admin or user themselves)
+router.delete(
+  "/delete-user/:id",
+  validObjectId,
+  verifyTokenAndAuthorization,
+  deleteUser,
+);
 
 module.exports = router;

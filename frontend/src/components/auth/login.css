@@ -69,7 +69,7 @@
 
 .login-card input::placeholder {
   color: rgba(255,255,255,0.5);
-  text-align: left;
+  text-align: right;
 }
 
 
@@ -87,14 +87,14 @@
 }
 
 .password-wrapper input {
-  padding-right: 45px;
+  padding-left: 45px;
 }
 
 
 /* Eye icon */
 .show-password {
   position: absolute;
-  right: 12px;
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
@@ -103,6 +103,7 @@
   align-items: center;
   justify-content: center;
   transition: 0.25s;
+  text-align: left;
 }
 
 .show-password:hover {

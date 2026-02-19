@@ -131,7 +131,13 @@ export default function ProfileUser() {
       navigate("/register");
     } catch (err) {
       console.error(err);
-      toast.error("فشل الحذف");
+      if (err.response?.status === 403) {
+        toast.error("غير مسموح لك بحذف هذا الحساب");
+      } else if (err.response?.status === 401) {
+        toast.error("انتهت الجلسة، يرجى تسجيل الدخول مجددًا");
+      } else {
+        toast.error(err.response?.data?.message || "فشل الحذف");
+      }
     }
   };
 
@@ -158,7 +164,7 @@ export default function ProfileUser() {
       }
 
       await axios.put(
-        `${API_URL}/api/users/profile/password`,
+        `${API_URL}/api/users/password`,
         {
           currentPassword: currentPassword,
           newPassword: newPassword,

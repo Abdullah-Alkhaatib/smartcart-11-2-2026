@@ -3,7 +3,7 @@ import { Toaster } from "react-hot-toast"; // npm install react-hot-toast
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Register from "./components/auth/Register.js";
 import Login from "./components/auth/Login.js";
-import { UserRoleProvider, useUserRole } from "./components/UserRole";
+import { useUserRole } from "./components/UserRole";
 import Dashboard from "./components/admin/Dashboard.js";
 import UserLayout from "./components/user/UserLayout.js";
 import NotFound from "./pages/NotFound.js";
@@ -40,43 +40,41 @@ function App() {
 
   return (
     <BrowserRouter>
-      <UserRoleProvider>
-        <Toaster
-          position="top-center"
-          toastOptions={{
-            success: { duration: 2000 },
-            error: { duration: 2000 },
-          }}
-        />
-        <Routes>
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          success: { duration: 2000 },
+          error: { duration: 2000 },
+        }}
+      />
+      <Routes>
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
 
-          {role === "admin" ? (
-            <>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/profile" element={<Dashboard />} />
-              <Route path="/users" element={<Dashboard />} />
-              <Route path="/categories" element={<Dashboard />} />
-              <Route path="/products" element={<Dashboard />} />
-              <Route path="/archived-products" element={<Dashboard />} />
-              <Route path="/logout" element={<Dashboard />} />
-            </>
-          ) : (
-            <Route path="/" element={<UserLayout />}>
-              <Route index element={<Home />} />
-              <Route path="products" element={<Products />} />
-              <Route path="product/:id" element={<ProductDetails />} />
-              <Route path="search-results" element={<SearchResults />} />
-              <Route path="profile" element={<ProfileUser />} />
-              <Route path="cart" element={<Cart />} />
-            </Route>
-          )}
+        {role === "admin" ? (
+          <>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<Dashboard />} />
+            <Route path="/users" element={<Dashboard />} />
+            <Route path="/categories" element={<Dashboard />} />
+            <Route path="/products" element={<Dashboard />} />
+            <Route path="/archived-products" element={<Dashboard />} />
+            <Route path="/logout" element={<Dashboard />} />
+          </>
+        ) : (
+          <Route path="/" element={<UserLayout />}>
+            <Route index element={<Home />} />
+            <Route path="products" element={<Products />} />
+            <Route path="product/:id" element={<ProductDetails />} />
+            <Route path="search-results" element={<SearchResults />} />
+            <Route path="profile" element={<ProfileUser />} />
+            <Route path="cart" element={<Cart />} />
+          </Route>
+        )}
 
-          <Route path="/*" element={<NotFound />} />
-        </Routes>
-      </UserRoleProvider>
+        <Route path="/*" element={<NotFound />} />
+      </Routes>
     </BrowserRouter>
   );
 }

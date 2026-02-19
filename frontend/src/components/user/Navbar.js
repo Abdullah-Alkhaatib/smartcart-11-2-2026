@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { useProductContext } from "../context/ProductContext";
 import { useCart } from "../context/CartContext";
 import API_URL from "../../config/api";
+import { useUserRole } from "../UserRole";
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
@@ -16,6 +17,7 @@ export default function Navbar() {
 
   const { selectedCategory, setSelectedCategory } = useProductContext();
   const { cartItems } = useCart();
+  const { role, logout } = useUserRole();
   const navigate = useNavigate();
 
   const cartCount = useMemo(
@@ -66,13 +68,17 @@ export default function Navbar() {
 
   useEffect(() => {
     fetchUserProfile();
+  }, [role]);
+
+  useEffect(() => {
     fetchCategories();
   }, []);
 
   function handleLogout() {
-    localStorage.removeItem("token");
+    logout();
+    setUser(null);
     toast.success("تم تسجيل الخروج بنجاح");
-    navigate("/login");
+    navigate("/");
   }
 
   function handleCategorySelect(event) {
