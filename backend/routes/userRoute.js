@@ -8,6 +8,7 @@ const {
   deleteUser,
   getUserProfile,
   updatePassword,
+  
 } = require("../controller/userController");
 const {
   verifyToken,

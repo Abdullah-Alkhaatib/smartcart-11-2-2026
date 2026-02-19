@@ -16,6 +16,8 @@ import DashboardUsers from './DashboardUsers';
 import CategoryDashboard from './CategoryDashboard';
 import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
 import ProductDashboard from './ProductDashboard';
+import ArchiveIcon from '@mui/icons-material/Archive';
+import ArchivedProducts from './ArchivedProducts';
 // import ProductDashboard from './ProductDashboard';
 // import MessageIcon from '@mui/icons-material/Message';
 // import ContentDashboard from './ContentDashboard';
@@ -53,6 +55,11 @@ const NAVIGATION = [
     segment: 'products',
     title: 'المنتجات',
     icon: <ProductionQuantityLimitsIcon />
+  },
+  {
+    segment: 'archived-products',
+    title: 'المنتجات المحذوفة',
+    icon: <ArchiveIcon />
   },
   {
     segment: 'logout',
@@ -96,6 +103,7 @@ function DemoPageContent({ pathname }) {
       {pathname === '/users' ? <DashboardUsers /> : null}
       {pathname === '/categories' ? <CategoryDashboard /> : null}
       {pathname === '/products' ? <ProductDashboard /> : null}
+      {pathname === '/archived-products' ? <ArchivedProducts /> : null}
       {pathname === '/logout' ? handleLogout() : null}
     </Box>
   );

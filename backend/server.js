@@ -22,11 +22,13 @@ const authRoute = require('./routes/authRoute.js');
 const userRoute = require('./routes/userRoute.js');
 const categoryRoute = require('./routes/categoryRoute.js');
 const productRoute = require('./routes/productRoute.js');
+const cartRoute = require('./routes/cartRoute.js');
 
 app.use('/api/auth', authRoute);
 app.use('/api/users', userRoute);
 app.use('/api/categories', categoryRoute);
 app.use('/api/products', productRoute);
+app.use('/api/cart', cartRoute);
 
 // start the server
 const PORT = process.env.PORT || 5000;
