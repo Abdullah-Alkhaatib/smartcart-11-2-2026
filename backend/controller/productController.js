@@ -3,6 +3,11 @@ const { Category } = require("../model/CategoryModel.js");
 const fs = require("fs");
 const path = require("path");
 
+const getActiveCategoryIds = async () => {
+  const activeCategories = await Category.find({ isActive: true }).select("_id");
+  return activeCategories.map((categoryDoc) => categoryDoc._id);
+};
+
 // create product
 const createProduct = async (req, res) => {
   try {
@@ -68,7 +73,12 @@ const createProduct = async (req, res) => {
 // get all products
 const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find({ isActive: true })
+    const activeCategoryIds = await getActiveCategoryIds();
+
+    const products = await Product.find({
+      isActive: true,
+      category: { $in: activeCategoryIds },
+    })
       .populate("category", "name") // populate category name only
       .sort({ createdAt: -1 }); // sort by newest first
 
@@ -83,10 +93,13 @@ const getSingleProduct = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const product = await Product.findOne({ _id: id, isActive: true }).populate(
-      "category",
-      "name",
-    ); // populate category name only
+    const activeCategoryIds = await getActiveCategoryIds();
+
+    const product = await Product.findOne({
+      _id: id,
+      isActive: true,
+      category: { $in: activeCategoryIds },
+    }).populate("category", "name"); // populate category name only
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
@@ -251,14 +264,32 @@ const restoreProduct = async (req, res) => {
 const filterProductsByCategory = async(req, res) => {
     try {
         const {categories} = req.body; // مصفوفة من الاي ديز
+        const activeCategoryIds = await getActiveCategoryIds();
+        const activeCategoryIdsSet = new Set(
+          activeCategoryIds.map((categoryId) => String(categoryId)),
+        );
 
         if(!categories || categories.length === 0){ // لو مفيش تصنيفات مختارة، رجع كل المنتجات
-            const allProducts = await Product.find().populate('category', 'name');
+            const allProducts = await Product.find({
+              isActive: true,
+              category: { $in: activeCategoryIds },
+            })
+            .populate('category', 'name')
+            .sort({ createdAt: -1 });
             return res.status(200).json(allProducts);
         }
 
+        const visibleSelectedCategories = categories.filter((categoryId) =>
+          activeCategoryIdsSet.has(String(categoryId)),
+        );
+
+        if (visibleSelectedCategories.length === 0) {
+          return res.status(200).json([]);
+        }
+
         const filteredProducts = await Product.find({
-            category: { $in: categories } // جلب المنتجات اللي كاتيجوري بتاعها في المصفوفة
+            isActive: true,
+            category: { $in: visibleSelectedCategories } // جلب المنتجات اللي كاتيجوري بتاعها في المصفوفة
         }).populate('category', 'name') // عرض اسم الكاتيجوري بدل الاي دي نبعها
         .sort({ createdAt: -1 });
         res.status(200).json(filteredProducts);
@@ -273,6 +304,7 @@ const filterProductsByCategory = async(req, res) => {
 const searchProducts = async (req, res) => {
     try {
         const { query } = req.query; // query => نص البحث 
+    const activeCategoryIds = await getActiveCategoryIds();
 
         if (!query) {
             return res.status(400).json({ message: 'Search query is required' });
@@ -281,6 +313,8 @@ const searchProducts = async (req, res) => {
         const regex = new RegExp(query, 'i'); // 'i' => عشان البحث مايكونش حساس لحالة الاحرف (كبيرة او صغيرة)
 
         const products = await Product.find({
+          isActive: true,
+          category: { $in: activeCategoryIds },
             $or: [ // $or => واحد من الشروط دي لازم يتحقق
                 { name: { $regex: regex } }, // البحث في الاسم
             ]
@@ -297,8 +331,21 @@ const searchProducts = async (req, res) => {
 // get products by category
 const getProductsByCategory = async (req, res) => { // عشان لما المستخدم يضغط على كاتيجوري من الصفحة، يشوف المنتجات نبعه
     try {
-        const { id } = req.params; // id = categoryId
-        const products = await Product.find({ category: id }).populate('category', 'name');
+        const { categoryId } = req.params; // categoryId
+
+        const categoryDoc = await Category.findOne({
+          _id: categoryId,
+          isActive: true,
+        }).select("_id");
+
+        if (!categoryDoc) {
+            return res.status(404).json({ message: 'Category not found' });
+        }
+
+        const products = await Product.find({
+          category: categoryId,
+          isActive: true,
+        }).populate('category', 'name');
 
         if (!products || products.length === 0) {
             return res.status(404).json({ message: 'No products found for this category' });
@@ -314,8 +361,12 @@ const getProductsByCategory = async (req, res) => { // عشان لما المس�
 const filterProductsByPrice = async (req, res) => {
     try {
         const {min, max} = req.body; 
+        const activeCategoryIds = await getActiveCategoryIds();
 
-        const query = {}; // يعني لو مفيش شروط، يرجع كل المنتجات
+        const query = {
+          isActive: true,
+          category: { $in: activeCategoryIds },
+        }; // يعني لو مفيش شروط، يرجع كل المنتجات النشطة في فئات نشطة
 
         if(min !== undefined && min !== null) query.price = {$gte: min}; // $gte => أكبر من أو يساوي
         if(max !== undefined && max !== null) query.price = {...query.price, $lte: max}; // ...query.price => لو في شرط سابق (زي شرط المين)، نحافظ عليه، $lte => أقل من أو يساوي
