@@ -13,6 +13,7 @@ import Products from "./pages/Products.js";
 import SearchResults from "./pages/SearchResults.js";
 import ProfileUser from "./components/user/ProfileUser.js";
 import Cart from "./pages/Cart.js";
+import Nana from "./pages/Nana.js";
 
 function App() {
   const { role, loading } = useUserRole();
@@ -70,6 +71,7 @@ function App() {
             <Route path="search-results" element={<SearchResults />} />
             <Route path="profile" element={<ProfileUser />} />
             <Route path="cart" element={<Cart />} />
+            <Route path="nana" element={<Nana />} />
           </Route>
         )}
 

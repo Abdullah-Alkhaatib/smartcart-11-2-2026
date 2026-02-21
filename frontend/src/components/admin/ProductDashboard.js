@@ -18,7 +18,7 @@ const initialForm = {
   price: "",
   discount: "0",
   category: "",
-  images: [], // array of {url, stock, color}
+  images: [],
 };
 
 const ProductDashboard = () => {
@@ -29,8 +29,9 @@ const ProductDashboard = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState(initialForm);
+  const [imageDetails, setImageDetails] = useState([]);
+  const [existingImagesCount, setExistingImagesCount] = useState(0);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [imageDetails, setImageDetails] = useState([]); // [{file, color, stock}]
 
   const token = localStorage.getItem("token");
 
@@ -89,15 +90,26 @@ const ProductDashboard = () => {
     if (files.length > 10) {
       toast.error("الحد الاقصى 10 صور");
     }
-    const newFiles = files.slice(0, 10);
-    setFormData((prev) => ({ ...prev, images: newFiles }));
-    // إنشاء array للتفاصيل (color, stock) لكل صورة
-    setImageDetails(newFiles.map(() => ({ stock: "0", color: "" })));
+    const limitedFiles = files.slice(0, 10);
+    setFormData((prev) => ({ ...prev, images: limitedFiles }));
+
+    setImageDetails((prev) => {
+      const existingPart = editingId ? prev.slice(0, existingImagesCount) : [];
+      const newPart = limitedFiles.map((_, index) => {
+        const currentDetail = prev[existingImagesCount + index] || {};
+        return {
+          stock: currentDetail.stock !== undefined ? currentDetail.stock : "0",
+          color: currentDetail.color || "",
+        };
+      });
+      return [...existingPart, ...newPart];
+    });
   };
 
   const resetForm = () => {
     setFormData(initialForm);
     setImageDetails([]);
+    setExistingImagesCount(0);
     setEditingId(null);
     setShowForm(false);
   };
@@ -105,7 +117,10 @@ const ProductDashboard = () => {
   const handleImageDetailChange = (index, field, value) => {
     setImageDetails((prev) => {
       const updated = [...prev];
-      updated[index] = { ...updated[index], [field]: value };
+      updated[index] = {
+        ...(updated[index] || {}),
+        [field]: value,
+      };
       return updated;
     });
   };
@@ -135,13 +150,10 @@ const ProductDashboard = () => {
       toast.error("الخصم يجب ان يكون بين 0 و 100");
       return false;
     }
-    // التحقق من أن كل صورة لها ستوك صحيح
-    if (formData.images.length > 0) {
-      for (let i = 0; i < imageDetails.length; i++) {
-        if (Number(imageDetails[i].stock) < 0) {
-          toast.error(`الكمية في الصورة ${i + 1} يجب ان تكون 0 او اكثر`);
-          return false;
-        }
+    for (const detail of imageDetails) {
+      if (Number(detail?.stock || 0) < 0) {
+        toast.error("الكمية لكل لون يجب ان تكون 0 او اكثر");
+        return false;
       }
     }
     return true;
@@ -155,22 +167,30 @@ const ProductDashboard = () => {
     payload.append("discount", String(formData.discount));
     payload.append("category", formData.category);
 
-    // بناء بيانات الصور مع التفاصيل (stock, color)
-    // عند التحديث: imageDetails يحتوي على الصور الموجودة + الجديدة
-    // عند الإنشاء: imageDetails يحتوي على الصور الجديدة فقط
-    const imagesMetadata = imageDetails.map((detail) => ({
-      stock: String(detail.stock),
-      color: detail.color,
-    }));
-
-    if (imagesMetadata.length > 0) {
-      // إرسال ملفات الصور الجديدة فقط
-      if (formData.images.length > 0) {
-        formData.images.forEach((image) => payload.append("images", image));
-      }
-      // إرسال بيانات كل الصور (الموجودة + الجديدة) كـ JSON string
-      payload.append("images", JSON.stringify(imagesMetadata));
+    if (formData.images.length > 0) {
+      formData.images.forEach((image) => payload.append("images", image));
     }
+
+    const existingMetadata = imageDetails
+      .slice(0, existingImagesCount)
+      .map((detail) => ({
+        stock: String(detail?.stock ?? 0),
+        color: detail?.color || "",
+      }));
+
+    const newImagesMetadata = formData.images.map((_, index) => {
+      const detail = imageDetails[existingImagesCount + index] || {};
+      return {
+        stock: String(detail.stock ?? 0),
+        color: detail.color || "",
+      };
+    });
+
+    const metadata = editingId
+      ? [...existingMetadata, ...newImagesMetadata]
+      : newImagesMetadata;
+
+    payload.append("images", JSON.stringify(metadata));
 
     return payload;
   };
@@ -231,15 +251,16 @@ const ProductDashboard = () => {
       price: product.price ?? "",
       discount: product.discount ?? 0,
       category: product.category?._id || "",
-      images: [], // في التحديث، نرفع صور جديدة فقط
+      images: [],
     });
-    // معلومات الصور الموجودة حالياً
-    setImageDetails(
-      (product.images || []).map((img) => ({
-        stock: String(img.stock || 0),
-        color: img.color || "",
-      })),
-    );
+
+    const existingDetails = (product.images || []).map((image) => ({
+      stock: String(image?.stock ?? 0),
+      color: image?.color || "",
+    }));
+
+    setImageDetails(existingDetails);
+    setExistingImagesCount(existingDetails.length);
     setShowForm(true);
   };
 
@@ -260,30 +281,32 @@ const ProductDashboard = () => {
       setProducts((prev) => prev.filter((product) => product._id !== id));
     } catch (error) {
       console.error(error);
-      toast.error("تعذر حذف المنتج");
+      toast.error(error.response?.data?.message || "تعذر حذف المنتج");
     }
   };
 
-  const resolveImageUrl = (imageObj) => {
-    // التعامل مع البنية الجديدة {url, stock, color}
-    let url = imageObj?.url || imageObj || "";
-    if (!url) return "";
-    if (url.startsWith("http://") || url.startsWith("https://")) return url;
-    return `${API_URL}/images/${url}`;
+  const resolveImageUrl = (value) => {
+    if (!value) return "";
+
+    const rawUrl =
+      typeof value === "string"
+        ? value
+        : typeof value === "object"
+          ? value.url || value.path || value.filename || ""
+          : "";
+
+    if (!rawUrl || typeof rawUrl !== "string") return "";
+    if (rawUrl.startsWith("http://") || rawUrl.startsWith("https://")) {
+      return rawUrl;
+    }
+    if (rawUrl.startsWith("/")) {
+      return `${API_URL}${rawUrl}`;
+    }
+    return `${API_URL}/images/${rawUrl}`;
   };
 
-  const resolveImages = (values = []) => {
-    return values
-      .map((value) => {
-        const url = resolveImageUrl(value);
-        return {
-          url,
-          stock: value?.stock || 0,
-          color: value?.color || "",
-        };
-      })
-      .filter((img) => img.url);
-  };
+  const resolveImages = (values = []) =>
+    values.map((value) => resolveImageUrl(value)).filter(Boolean);
 
   const getFinalPrice = (product) => {
     if (typeof product.finalPrice === "number") return product.finalPrice;
@@ -291,9 +314,14 @@ const ProductDashboard = () => {
     return product.price - (product.price * product.discount) / 100;
   };
 
+  const openImagePreview = (imageUrl) => {
+    if (!imageUrl) return;
+    setSelectedImage(imageUrl);
+  };
+
   return (
-    <section className="product-dashboard">
-      <header className="product-dashboard__header">
+    <section className="pdb-root">
+      <header className="pdb-header">
         <div>
           <h2>
             <ShoppingBag size={22} />
@@ -303,7 +331,7 @@ const ProductDashboard = () => {
         </div>
         <button
           type="button"
-          className="refresh-btn"
+          className="pdb-refresh-btn"
           onClick={fetchProducts}
           disabled={refreshing}
         >
@@ -312,15 +340,15 @@ const ProductDashboard = () => {
         </button>
       </header>
 
-      <div className="product-dashboard__grid">
+      <div className="pdb-grid">
         {showForm && (
           <form
-            className="product-form"
+            className="pdb-form"
             onSubmit={editingId ? handleUpdate : handleCreate}
           >
             <h3>{editingId ? "تعديل المنتج" : "انشاء منتج جديد"}</h3>
 
-            <div className="form-group">
+            <div className="pdb-form-group">
               <label htmlFor="name">اسم المنتج</label>
               <input
                 type="text"
@@ -334,7 +362,7 @@ const ProductDashboard = () => {
               />
             </div>
 
-            <div className="form-group">
+            <div className="pdb-form-group">
               <label htmlFor="description">الوصف</label>
               <textarea
                 id="description"
@@ -348,14 +376,14 @@ const ProductDashboard = () => {
               />
             </div>
 
-            <div className="form-grid">
-              <div className="form-group">
+            <div className="pdb-form-grid">
+              <div className="pdb-form-group">
                 <label htmlFor="price">السعر</label>
                 <input
                   type="number"
                   id="price"
                   name="price"
-                  className="input-ltr"
+                  className="pdb-input-ltr"
                   value={formData.price}
                   onChange={handleInputChange}
                   min="0"
@@ -363,13 +391,13 @@ const ProductDashboard = () => {
                   required
                 />
               </div>
-              <div className="form-group">
+              <div className="pdb-form-group">
                 <label htmlFor="discount">الخصم (%)</label>
                 <input
                   type="number"
                   id="discount"
                   name="discount"
-                  className="input-ltr"
+                  className="pdb-input-ltr"
                   value={formData.discount}
                   onChange={handleInputChange}
                   min="0"
@@ -379,7 +407,7 @@ const ProductDashboard = () => {
               </div>
             </div>
 
-            <div className="form-group">
+            <div className="pdb-form-group">
               <label htmlFor="category">الفئة</label>
               <select
                 id="category"
@@ -397,57 +425,47 @@ const ProductDashboard = () => {
               </select>
             </div>
 
-            <div className="form-group">
+            <div className="pdb-form-group">
               <label htmlFor="images">الصور</label>
-              {editingId && imageDetails.length > 0 && (
-                <div className="existing-images">
-                  <p className="label-existing">الصور الموجودة:</p>
-                  <div className="existing-images-list">
-                    {imageDetails.map((detail, index) => (
-                      <div key={index} className="existing-image-item">
-                        <div className="detail-fields">
-                          <input
-                            type="number"
-                            placeholder="الكمية"
-                            className="input-ltr"
-                            value={
-                              detail.stock !== undefined ? detail.stock : "0"
-                            }
-                            onChange={(e) =>
-                              setImageDetails((prev) => {
-                                const updated = [...prev];
-                                updated[index] = {
-                                  ...updated[index],
-                                  stock: e.target.value,
-                                };
-                                return updated;
-                              })
-                            }
-                            min="0"
-                          />
-                          <input
-                            type="text"
-                            dir="auto"
-                            placeholder="اللون (مثال: أحمر)"
-                            value={detail.color || ""}
-                            onChange={(e) =>
-                              setImageDetails((prev) => {
-                                const updated = [...prev];
-                                updated[index] = {
-                                  ...updated[index],
-                                  color: e.target.value,
-                                };
-                                return updated;
-                              })
-                            }
-                          />
-                        </div>
+
+              {editingId && existingImagesCount > 0 && (
+                <div className="pdb-file-list">
+                  {imageDetails
+                    .slice(0, existingImagesCount)
+                    .map((detail, index) => (
+                      <div key={`existing-${index}`} className="pdb-form-grid">
+                        <input
+                          type="number"
+                          placeholder="كمية اللون"
+                          className="pdb-input-ltr"
+                          value={detail?.stock ?? "0"}
+                          onChange={(event) =>
+                            handleImageDetailChange(
+                              index,
+                              "stock",
+                              event.target.value,
+                            )
+                          }
+                          min="0"
+                        />
+                        <input
+                          type="text"
+                          dir="auto"
+                          placeholder="اللون"
+                          value={detail?.color || ""}
+                          onChange={(event) =>
+                            handleImageDetailChange(
+                              index,
+                              "color",
+                              event.target.value,
+                            )
+                          }
+                        />
                       </div>
                     ))}
-                  </div>
                 </div>
               )}
-              <p className="label-new">أضف صور جديدة:</p>
+
               <input
                 type="file"
                 id="images"
@@ -455,73 +473,78 @@ const ProductDashboard = () => {
                 multiple
                 onChange={handleImagesChange}
               />
+
               {formData.images.length > 0 && (
-                <div className="file-list">
-                  <div>
-                    {formData.images.map((file, index) => (
-                      <div key={file.name} className="image-detail-form">
-                        <span className="file-name">{file.name}</span>
-                        <div className="detail-fields">
-                          <input
-                            type="number"
-                            placeholder="الكمية"
-                            className="input-ltr"
-                            value={
-                              imageDetails[index]?.stock !== undefined
-                                ? imageDetails[index]?.stock
-                                : "0"
-                            }
-                            onChange={(e) =>
-                              handleImageDetailChange(
-                                index,
-                                "stock",
-                                e.target.value,
-                              )
-                            }
-                            min="0"
-                          />
-                          <input
-                            type="text"
-                            dir="auto"
-                            placeholder="اللون"
-                            value={imageDetails[index]?.color || ""}
-                            onChange={(e) =>
-                              handleImageDetailChange(
-                                index,
-                                "color",
-                                e.target.value,
-                              )
-                            }
-                          />
-                        </div>
+                <div className="pdb-file-list">
+                  {formData.images.map((file, index) => {
+                    const detailIndex = existingImagesCount + index;
+                    return (
+                      <div
+                        key={`${file.name}-${index}`}
+                        className="pdb-form-grid"
+                      >
+                        <span>{file.name}</span>
+                        <input
+                          type="number"
+                          placeholder="كمية اللون"
+                          className="pdb-input-ltr"
+                          value={imageDetails[detailIndex]?.stock ?? "0"}
+                          onChange={(event) =>
+                            handleImageDetailChange(
+                              detailIndex,
+                              "stock",
+                              event.target.value,
+                            )
+                          }
+                          min="0"
+                        />
+                        <input
+                          type="text"
+                          dir="auto"
+                          placeholder="اللون"
+                          value={imageDetails[detailIndex]?.color || ""}
+                          onChange={(event) =>
+                            handleImageDetailChange(
+                              detailIndex,
+                              "color",
+                              event.target.value,
+                            )
+                          }
+                        />
                       </div>
-                    ))}
-                  </div>
-                  <span className="file-note">{formData.images.length}/10</span>
+                    );
+                  })}
+                  <span className="pdb-file-note">
+                    {formData.images.length}/10
+                  </span>
                 </div>
               )}
             </div>
 
-            <div className="form-actions">
-              <button type="submit" className="btn-submit">
+            <div className="pdb-form-actions">
+              <button type="submit" className="pdb-btn-submit">
                 {editingId ? "تحديث" : "انشاء"}
               </button>
-              <button type="button" className="btn-cancel" onClick={resetForm}>
+              <button
+                type="button"
+                className="pdb-btn-cancel"
+                onClick={resetForm}
+              >
                 الغاء
               </button>
             </div>
           </form>
         )}
 
-        <div className="products-list">
-          <div className="products-list__head">
+        <div className="pdb-list">
+          <div className="pdb-list-head">
             <h3>قائمة المنتجات</h3>
-            <div className="header-actions">
+            <div className="pdb-header-actions">
               <span>{products.length} منتج</span>
               {!showForm && (
                 <button
                   type="button"
-                  className="btn-create"
+                  className="pdb-btn-create"
                   onClick={() => {
                     setEditingId(null);
                     setFormData(initialForm);
@@ -534,111 +557,82 @@ const ProductDashboard = () => {
               )}
             </div>
           </div>
+
           {loading ? (
-            <div className="products-state">جار تحميل المنتجات...</div>
+            <div className="pdb-state">جار تحميل المنتجات...</div>
           ) : products.length === 0 ? (
-            <div className="products-state">لا توجد منتجات حاليا</div>
+            <div className="pdb-state">لا توجد منتجات حاليا</div>
           ) : (
-            <div className="products-table">
+            <div className="pdb-table">
               {products.map((product) => {
                 const images = resolveImages(product.images || []);
-                const coverImg = images[0];
+                const cover = images[0];
                 const finalPrice = getFinalPrice(product);
-                const totalStock = product.totalStock || 0; // استخدام totalStock من الـ virtual field
                 return (
-                  <div className="product-card" key={product._id}>
-                    <div className="product-media">
+                  <div className="pdb-card" key={product._id}>
+                    <div className="pdb-media">
                       <img
                         src={
-                          coverImg?.url ||
+                          cover ||
                           "https://via.placeholder.com/140x140?text=No+Image"
                         }
                         alt={product.name}
-                        className="product-image"
-                        onClick={() => setSelectedImage(coverImg?.url)}
-                        style={{ cursor: "zoom-in" }}
+                        className="pdb-image"
+                        onClick={() => openImagePreview(cover)}
                       />
                       {images.length > 1 && (
-                        <div className="product-thumbs">
+                        <div className="pdb-thumbs">
                           {images.slice(0, 4).map((image, index) => (
                             <img
                               key={`${product._id}-${index}`}
-                              src={image.url}
+                              src={image}
                               alt={`${product.name}-${index + 1}`}
-                              className="product-thumb"
-                              onClick={() => setSelectedImage(image.url)}
-                              style={{ cursor: "zoom-in" }}
+                              className="pdb-thumb"
+                              onClick={() => openImagePreview(image)}
                             />
                           ))}
                           {images.length > 4 && (
-                            <span className="thumb-more">
+                            <span className="pdb-thumb-more">
                               +{images.length - 4}
                             </span>
                           )}
                         </div>
                       )}
                     </div>
-                    <div className="product-info">
-                      <div className="product-title">
+                    <div className="pdb-info">
+                      <div className="pdb-title">
                         <h4>{product.name}</h4>
                         {product.discount > 0 && (
-                          <span className="discount-badge">
+                          <span className="pdb-discount-badge">
                             خصم {product.discount}%
                           </span>
                         )}
                       </div>
-                      <p className="product-description">
-                        {product.description}
-                      </p>
-                      <div className="product-variants">
-                        {images.length > 0 && (
-                          <div className="variants-list">
-                            {images.map((img, idx) => (
-                              <div key={idx} className="variant-item">
-                                {img.color && (
-                                  <span className="variant-label">
-                                    <span>{img.color}</span>
-                                  </span>
-                                )}
-                                <span className="variant-stock">
-                                  {img.stock} وحدة
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <div className="product-meta">
-                        <div className="price-container">
-                          {product.discount > 0 && (
-                            <span className="price-original input-ltr">
-                              {Number(product.price).toFixed(2)} د.ك
-                            </span>
-                          )}
-                          <span className="price-tag input-ltr">
-                            {Number(finalPrice).toFixed(2)} د.ك
-                          </span>
-                        </div>
-                        <span className="stock-tag">
-                          الكمية الكلية: {totalStock}
+                      <p className="pdb-description">{product.description}</p>
+                      <div className="pdb-meta">
+                        <span className="pdb-price-tag pdb-input-ltr">
+                          {Number(finalPrice).toFixed(2)} د.ك
+                        </span>
+                        <span className="pdb-stock-tag">
+                          الكمية: {product.totalStock ?? 0}
                         </span>
                       </div>
-                      <div className="product-category">
+                      <div className="pdb-category">
                         <Tags size={14} />
                         {product.category?.name || "بدون فئة"}
                       </div>
                     </div>
-                    <div className="product-actions">
+                    <div className="pdb-actions">
                       <button
                         type="button"
-                        className="edit-btn"
+                        className="pdb-edit-btn"
                         onClick={() => startEdit(product)}
                       >
                         <Edit2 size={16} />
                       </button>
                       <button
                         type="button"
-                        className="delete-btn"
+                        className="pdb-delete-btn"
                         onClick={() => handleDelete(product._id)}
                       >
                         <Trash2 size={16} />
@@ -652,10 +646,21 @@ const ProductDashboard = () => {
         </div>
       </div>
 
-      {/* Image Modal */}
       {selectedImage && (
-        <div className="image-modal" onClick={() => setSelectedImage(null)}>
-          <img src={selectedImage} alt="enlarged" className="modal-image" />
+        <div className="pdb-image-modal" onClick={() => setSelectedImage(null)}>
+          <button
+            type="button"
+            className="pdb-image-modal-close"
+            onClick={() => setSelectedImage(null)}
+          >
+            ×
+          </button>
+          <img
+            src={selectedImage}
+            alt="product-preview"
+            className="pdb-image-modal-content"
+            onClick={(event) => event.stopPropagation()}
+          />
         </div>
       )}
     </section>

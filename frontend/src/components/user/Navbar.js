@@ -46,8 +46,11 @@ export default function Navbar() {
         "Error loading user profile:",
         error.response?.data || error.message,
       );
-      localStorage.removeItem("token");
-      setUser(null);
+      const status = error.response?.status;
+      if (status === 401 || status === 403) {
+        localStorage.removeItem("token");
+        setUser(null);
+      }
     } finally {
       setLoading(false);
     }

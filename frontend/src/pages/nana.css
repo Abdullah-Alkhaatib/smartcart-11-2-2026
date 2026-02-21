@@ -1,0 +1,672 @@
+@import url("https://fonts.googleapis.com/css2?family=Pacifico&display=swap");
+
+.nana-container {
+  min-height: 89.9vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.nana-container::before {
+  content: "";
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  top: 10%;
+  left: 15%;
+  animation: float 8s ease-in-out infinite;
+}
+
+.nana-container::after {
+  content: "";
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  bottom: 20%;
+  right: 10%;
+  animation: float 6s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+  50% {
+    transform: translateY(-30px) translateX(20px);
+  }
+}
+
+.heart-wrapper {
+  position: relative;
+  margin-bottom: 3rem;
+  animation: heartbeat 1.5s ease-in-out infinite;
+  z-index: 10;
+}
+
+@keyframes heartbeat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  10%,
+  30% {
+    transform: scale(1.1);
+  }
+  20%,
+  40% {
+    transform: scale(1);
+  }
+}
+
+.heart {
+  position: relative;
+  width: 200px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 30px rgba(255, 107, 157, 0.6));
+}
+
+.heart::before,
+.heart::after {
+  content: "";
+  position: absolute;
+  width: 100px;
+  height: 160px;
+  background: linear-gradient(135deg, #ff6b9d 0%, #c06c84 100%);
+  border-radius: 100px 100px 0 0;
+  transform-origin: bottom;
+}
+
+.heart::before {
+  left: 50px;
+  transform: rotate(-45deg);
+}
+
+.heart::after {
+  left: 0;
+  transform: rotate(45deg);
+}
+
+.heart-text {
+  position: relative;
+  z-index: 10;
+  font-family: "Pacifico", cursive;
+  font-size: 3.5rem;
+  color: #ffffff;
+  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  0% {
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.5);
+  }
+  100% {
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 40px rgba(255, 255, 255, 0.8);
+  }
+}
+
+.sparkles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.sparkle {
+  position: absolute;
+  font-size: 1.2rem;
+  animation: sparkle 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+}
+
+.sparkle:nth-child(1) {
+  top: 10%;
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.sparkle:nth-child(2) {
+  top: 30%;
+  right: 15%;
+  animation-delay: 0.3s;
+}
+
+.sparkle:nth-child(3) {
+  bottom: 25%;
+  left: 10%;
+  animation-delay: 0.6s;
+}
+
+.sparkle:nth-child(4) {
+  top: 50%;
+  right: 5%;
+  animation-delay: 0.9s;
+}
+
+.sparkle:nth-child(5) {
+  bottom: 15%;
+  right: 25%;
+  animation-delay: 1.2s;
+}
+
+.sparkle:nth-child(6) {
+  top: 20%;
+  left: 50%;
+  animation-delay: 1.5s;
+}
+
+@keyframes sparkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+}
+
+.nana-title {
+  font-family: "Pacifico", cursive;
+  font-size: 2.5rem;
+  color: #ffffff;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  margin: 0;
+  animation: fadeIn 1.5s ease-in-out;
+}
+
+.nana-subtitle {
+  font-family: "Pacifico", cursive;
+  font-size: 1.4rem;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+  margin: 0.75rem 0 0;
+  animation: fadeIn 2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Falling Petals */
+.petals {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.petal {
+  position: absolute;
+  top: -10%;
+  width: 12px;
+  height: 12px;
+  background: radial-gradient(circle, #ffb3d9, #ff85c8);
+  border-radius: 50% 0 50% 50%;
+  opacity: 0.8;
+  animation: fall 8s linear infinite;
+  transform: rotate(45deg);
+}
+
+@keyframes fall {
+  0% {
+    top: -10%;
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.6;
+  }
+  100% {
+    top: 110%;
+    opacity: 0;
+    transform: translateX(100px) rotate(360deg);
+  }
+}
+
+/* Roses Around Heart */
+.roses-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.rose {
+  position: absolute;
+  font-size: 3rem;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+  animation: roseFloat 4s ease-in-out infinite;
+}
+
+.rose-1 {
+  top: 20%;
+  left: 15%;
+  animation-delay: 0s;
+}
+
+.rose-2 {
+  top: 25%;
+  right: 18%;
+  animation-delay: 0.5s;
+}
+
+.rose-3 {
+  top: 45%;
+  left: 8%;
+  animation-delay: 1s;
+  font-size: 2.5rem;
+}
+
+.rose-4 {
+  top: 45%;
+  right: 10%;
+  animation-delay: 1.5s;
+  font-size: 2.5rem;
+}
+
+.rose-5 {
+  bottom: 25%;
+  left: 20%;
+  animation-delay: 2s;
+}
+
+.rose-6 {
+  bottom: 25%;
+  right: 22%;
+  animation-delay: 2.5s;
+}
+
+@keyframes roseFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(5deg);
+  }
+}
+
+/* Butterflies */
+.butterflies {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 8;
+}
+
+.butterfly {
+  position: absolute;
+  font-size: 2rem;
+  animation: butterflyFly 8s ease-in-out infinite;
+  filter: hue-rotate(180deg) brightness(1.2) saturate(1.5);
+  text-shadow: 0 0 15px rgba(0, 150, 255, 0.8), 0 0 25px rgba(0, 100, 255, 0.6);
+}
+
+.butterfly-1 {
+  top: 15%;
+  left: 25%;
+  animation-delay: 0s;
+}
+
+.butterfly-2 {
+  top: 30%;
+  right: 20%;
+  animation-delay: 2s;
+}
+
+.butterfly-3 {
+  bottom: 30%;
+  left: 15%;
+  animation-delay: 4s;
+}
+
+.butterfly-4 {
+  top: 50%;
+  right: 15%;
+  animation-delay: 6s;
+}
+
+@keyframes butterflyFly {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  50% {
+    transform: translate(60px, -40px) rotate(10deg);
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(120px, 20px) rotate(-5deg);
+    opacity: 0;
+  }
+}
+
+/* Stars */
+.stars {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.star {
+  position: absolute;
+  font-size: 1rem;
+  animation: starTwinkle 3s ease-in-out infinite;
+}
+
+@keyframes starTwinkle {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Glowing Hearts */
+.glowing-hearts {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.growing-heart {
+  position: absolute;
+  font-size: 2.5rem;
+  animation: heartGrow 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(255, 107, 157, 0.6));
+}
+
+.heart-1 {
+  top: 35%;
+  left: 25%;
+  animation-delay: 0s;
+}
+
+.heart-2 {
+  top: 35%;
+  right: 25%;
+  animation-delay: 1.3s;
+}
+
+.heart-3 {
+  bottom: 35%;
+  left: 50%;
+  animation: heartGrowCenter 4s ease-in-out infinite;
+  animation-delay: 2.6s;
+}
+
+@keyframes heartGrow {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.7;
+  }
+  70% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+@keyframes heartGrowCenter {
+  0% {
+    transform: translateX(-50%) scale(0.3);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.7;
+  }
+  70% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateX(-50%) scale(2.5);
+    opacity: 0;
+  }
+}
+
+/* Flying N Letters */
+.flying-letters {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.flying-n {
+  position: absolute;
+  bottom: -10%;
+  font-family: "Pacifico", cursive;
+  font-size: 2.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: bold;
+  text-shadow: 0 0 20px rgba(255, 182, 193, 0.8), 0 4px 15px rgba(0, 0, 0, 0.3);
+  animation: flyUp 10s linear infinite;
+}
+
+@keyframes flyUp {
+  0% {
+    bottom: -10%;
+    opacity: 0;
+    transform: translateX(0) rotate(0deg);
+  }
+  10% {
+    opacity: 0.7;
+  }
+  25% {
+    transform: translateX(50px) rotate(15deg);
+  }
+  50% {
+    transform: translateX(-30px) rotate(-10deg);
+  }
+  75% {
+    transform: translateX(40px) rotate(20deg);
+    opacity: 0.7;
+  }
+  90% {
+    opacity: 0;
+  }
+  100% {
+    bottom: 110%;
+    opacity: 0;
+    transform: translateX(-20px) rotate(-15deg);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .heart {
+    width: 160px;
+    height: 144px;
+  }
+
+  .heart::before,
+  .heart::after {
+    width: 80px;
+    height: 128px;
+  }
+
+  .heart::before {
+    left: 40px;
+  }
+
+  .heart-text {
+    font-size: 2.8rem;
+  }
+
+  .nana-title {
+    font-size: 2rem;
+  }
+
+  .nana-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .rose {
+    font-size: 2.2rem;
+  }
+
+  .rose-3,
+  .rose-4 {
+    font-size: 1.8rem;
+  }
+
+  .butterfly {
+    font-size: 1.6rem;
+  }
+
+  .star {
+    font-size: 0.9rem;
+  }
+
+  .flying-n {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .heart {
+    width: 140px;
+    height: 126px;
+  }
+
+  .heart::before,
+  .heart::after {
+    width: 70px;
+    height: 112px;
+  }
+
+  .heart::before {
+    left: 35px;
+  }
+
+  .heart-text {
+    font-size: 2.4rem;
+  }
+
+  .nana-title {
+    font-size: 1.6rem;
+  }
+
+  .nana-subtitle {
+    font-size: 1rem;
+  }
+
+  .nana-container::before {
+    width: 200px;
+    height: 200px;
+  }
+
+  .nana-container::after {
+    width: 150px;
+    height: 150px;
+  }
+
+  .rose {
+    font-size: 1.8rem;
+  }
+
+  .rose-3,
+  .rose-4 {
+    font-size: 1.4rem;
+  }
+
+  .rose-1 {
+    top: 15%;
+    left: 10%;
+  }
+
+  .rose-2 {
+    top: 18%;
+    right: 12%;
+  }
+
+  .rose-5 {
+    bottom: 20%;
+    left: 15%;
+  }
+
+  .rose-6 {
+    bottom: 20%;
+    right: 18%;
+  }
+
+  .butterfly {
+    font-size: 1.4rem;
+  }
+
+  .star {
+    font-size: 0.8rem;
+  }
+
+  .ring-1 {
+    width: 250px;
+    height: 250px;
+  }
+
+  .ring-2 {
+    width: 350px;
+    height: 350px;
+  }
+
+  .ring-3 {
+    width: 450px;
+    height: 450px;
+  }
+}

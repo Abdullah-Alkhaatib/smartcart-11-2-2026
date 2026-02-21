@@ -21,6 +21,7 @@ import API_URL from "../config/api";
 export default function Products() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [selectedColors, setSelectedColors] = useState({});
   const [checkedCategories, setCheckedCategories] = useState([]);
   const [selectedPriceRange, setSelectedPriceRange] = useState(null);
   const [visibleCount, setVisibleCount] = useState(12);
@@ -28,6 +29,26 @@ export default function Products() {
   const { selectedCategory } = useProductContext();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+
+  const getSelectedImage = (product) => {
+    if (!product.images || product.images.length === 0) return null;
+
+    const selectedColor = selectedColors[product._id];
+    if (selectedColor) {
+      const selected = product.images.find((img) => img.color === selectedColor);
+      if (selected) return selected;
+    }
+
+    const firstAvailableImage = product.images.find((img) => img.stock > 0);
+    return firstAvailableImage || product.images[0];
+  };
+
+  const handleColorSelect = (productId, color) => {
+    setSelectedColors((prev) => ({
+      ...prev,
+      [productId]: color,
+    }));
+  };
 
   // Get all categories
   const getCategories = async () => {
@@ -131,14 +152,14 @@ export default function Products() {
       return;
     }
 
-    const firstAvailableImage = product.images.find((img) => img.stock > 0);
+    const selectedImage = getSelectedImage(product);
 
-    if (!firstAvailableImage) {
+    if (!selectedImage || selectedImage.stock <= 0) {
       toast.error("المنتج غير متوفر بأي لون");
       return;
     }
 
-    await addToCart(product._id, firstAvailableImage.color, 1);
+    await addToCart(product._id, selectedImage.color, 1);
   };
 
   // Calculate total stock
@@ -278,6 +299,7 @@ export default function Products() {
             ) : (
               products.slice(0, visibleCount).map((product) => {
                 const totalStock = getTotalStock(product);
+                const selectedImage = getSelectedImage(product);
                 const finalPrice =
                   product.discount > 0
                     ? product.price - (product.price * product.discount) / 100
@@ -310,7 +332,11 @@ export default function Products() {
                     >
                       {product.images && product.images.length > 0 ? (
                         <img
-                          src={`${API_URL}/images/${product.images[0].url}`}
+                          src={
+                            selectedImage?.url
+                              ? `${API_URL}/images/${selectedImage.url}`
+                              : "https://via.placeholder.com/300x220?text=No+Image"
+                          }
                           alt={product.name}
                           className="product-image"
                         />
@@ -357,12 +383,15 @@ export default function Products() {
                             {product.images.slice(0, 4).map((img, index) => (
                               <div
                                 key={index}
-                                className="color-dot"
+                                className={`color-dot ${selectedImage?.color === img.color ? "active" : ""}`}
                                 style={{
                                   backgroundColor: img.color,
                                   opacity: img.stock > 0 ? 1 : 0.3,
                                 }}
                                 title={img.color}
+                                onClick={() =>
+                                  handleColorSelect(product._id, img.color)
+                                }
                               ></div>
                             ))}
                             {product.images.length > 4 && (
@@ -394,13 +423,15 @@ export default function Products() {
                         </div>
 
                         <button
-                          className={`add-to-cart-btn ${totalStock === 0 ? "disabled" : ""}`}
+                          className={`add-to-cart-btn ${!selectedImage || selectedImage.stock === 0 ? "disabled" : ""}`}
                           onClick={() => handleAddToCart(product)}
-                          disabled={totalStock === 0}
+                          disabled={!selectedImage || selectedImage.stock === 0}
                         >
                           <ShoppingCart size={18} />
                           <span>
-                            {totalStock === 0 ? "غير متوفر" : "أضف للسلة"}
+                            {!selectedImage || selectedImage.stock === 0
+                              ? "غير متوفر"
+                              : "أضف للسلة"}
                           </span>
                         </button>
                       </div>

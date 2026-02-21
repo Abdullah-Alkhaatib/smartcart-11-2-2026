@@ -30,14 +30,18 @@ export const UserRoleProvider = ({ children }) => {
     } catch (error) {
       console.log(error);
 
-      if (error.response?.status === 401 || error.response?.status === 403) {
+      const status = error.response?.status;
+      if (status === 401 || status === 403) {
         localStorage.removeItem("token");
         setRole(null);
+        toast.error("Session expired, please login again", {
+          id: "auth-error",
+        });
+      } else if (!error.response) {
+        toast.error("Server unavailable. You are still logged in.", {
+          id: "auth-error",
+        });
       }
-
-      toast.error("Session expired, please login again", {
-        id: "auth-error", // 🔥 يمنع التكرار
-      });
     } finally {
       setLoading(false);
     }

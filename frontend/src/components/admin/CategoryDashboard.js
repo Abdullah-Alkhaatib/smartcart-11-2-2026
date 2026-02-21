@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import "./categoryDashboard.css";
 import toast from "react-hot-toast";
@@ -11,6 +11,8 @@ import {
   EyeOff,
 } from "lucide-react";
 import API_URL from "../../config/api";
+
+const FALLBACK_IMAGE = "https://via.placeholder.com/150?text=No+Image";
 
 export default function CategoryDashboard() {
   const [categories, setCategories] = useState([]);
@@ -27,8 +29,13 @@ export default function CategoryDashboard() {
 
   const token = localStorage.getItem("token");
 
-  // Fetch all categories (admin)
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
+    if (!token) {
+      setLoading(false);
+      toast.error("انتهت الجلسة، سجّل دخول كمسؤول مرة ثانية");
+      return;
+    }
+
     setRefreshing(true);
     try {
       const response = await axios.get(
@@ -39,105 +46,98 @@ export default function CategoryDashboard() {
           },
         },
       );
+
       setCategories(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error(error);
-      toast.error("تعذر تحميل الفئات");
+      toast.error(error.response?.data?.message || "تعذر تحميل الفئات");
     } finally {
       setRefreshing(false);
       setLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [fetchCategories]);
 
-  // Handle form input change
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageChange = (event) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      image: event.target.files?.[0] || null,
     }));
   };
 
-  // Handle image selection
-  const handleImageChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      image: e.target.files[0],
-    }));
+  const resetForm = () => {
+    setEditingId(null);
+    setFormData({ name: "", description: "", image: null });
+    setShowForm(false);
   };
 
-  // Create new category
-  const handleCreate = async (e) => {
-    e.preventDefault();
-
+  const validateAuth = () => {
     if (!token) {
       toast.error("الرجاء تسجيل الدخول كمسؤول");
-      return;
+      return false;
     }
+    return true;
+  };
 
+  const validateName = () => {
     if (!formData.name.trim()) {
       toast.error("الرجاء إدخال اسم الفئة");
-      return;
+      return false;
     }
+    return true;
+  };
 
+  const buildPayload = () => {
     const form = new FormData();
-    form.append("name", formData.name);
-    form.append("description", formData.description);
+    form.append("name", formData.name.trim());
+    form.append("description", formData.description || "");
     if (formData.image) {
       form.append("image", formData.image);
     }
+    return form;
+  };
+
+  const handleCreate = async (event) => {
+    event.preventDefault();
+    if (!validateAuth() || !validateName()) return;
 
     try {
-      await axios.post(`${API_URL}/api/categories/create-category`, form, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
+      await axios.post(
+        `${API_URL}/api/categories/create-category`,
+        buildPayload(),
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
         },
-      });
+      );
 
       toast.success("تم إنشاء الفئة بنجاح");
-      setFormData({ name: "", description: "", image: null });
-      setShowForm(false);
+      resetForm();
       fetchCategories();
     } catch (error) {
       console.error(error);
-      if (error.response?.status === 400) {
-        toast.error("هذه الفئة موجودة بالفعل");
-      } else {
-        toast.error("تعذر إنشاء الفئة");
-      }
+      toast.error(error.response?.data?.message || "تعذر إنشاء الفئة");
     }
   };
 
-  // Update category
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-
-    if (!token) {
-      toast.error("الرجاء تسجيل الدخول كمسؤول");
-      return;
-    }
-
-    if (!formData.name.trim()) {
-      toast.error("الرجاء إدخال اسم الفئة");
-      return;
-    }
-
-    const form = new FormData();
-    form.append("name", formData.name);
-    form.append("description", formData.description);
-    if (formData.image) {
-      form.append("image", formData.image);
-    }
+  const handleUpdate = async (event) => {
+    event.preventDefault();
+    if (!validateAuth() || !validateName()) return;
 
     try {
       await axios.put(
         `${API_URL}/api/categories/update-category/${editingId}`,
-        form,
+        buildPayload(),
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -147,40 +147,26 @@ export default function CategoryDashboard() {
       );
 
       toast.success("تم تحديث الفئة بنجاح");
-      setFormData({ name: "", description: "", image: null });
-      setShowForm(false);
-      setEditingId(null);
+      resetForm();
       fetchCategories();
     } catch (error) {
       console.error(error);
-      toast.error("تعذر تحديث الفئة");
+      toast.error(error.response?.data?.message || "تعذر تحديث الفئة");
     }
   };
 
-  // Start editing
   const startEdit = (category) => {
     setEditingId(category._id);
     setFormData({
-      name: category.name,
-      description: category.description,
+      name: category.name || "",
+      description: category.description || "",
       image: null,
     });
     setShowForm(true);
   };
 
-  // Cancel editing
-  const cancelEdit = () => {
-    setEditingId(null);
-    setFormData({ name: "", description: "", image: null });
-    setShowForm(false);
-  };
-
-  // Delete category
   const handleDelete = async (id) => {
-    if (!token) {
-      toast.error("الرجاء تسجيل الدخول كمسؤول");
-      return;
-    }
+    if (!validateAuth()) return;
 
     const confirmed = window.confirm("هل تريد حذف هذه الفئة؟");
     if (!confirmed) return;
@@ -191,20 +177,17 @@ export default function CategoryDashboard() {
           Authorization: `Bearer ${token}`,
         },
       });
+
       toast.success("تم حذف الفئة");
       setCategories((prev) => prev.filter((cat) => cat._id !== id));
     } catch (error) {
       console.error(error);
-      toast.error("تعذر حذف الفئة");
+      toast.error(error.response?.data?.message || "تعذر حذف الفئة");
     }
   };
 
-  // Toggle category status (active/hidden)
   const handleToggleStatus = async (id) => {
-    if (!token) {
-      toast.error("الرجاء تسجيل الدخول كمسؤول");
-      return;
-    }
+    if (!validateAuth()) return;
 
     try {
       const response = await axios.put(
@@ -228,16 +211,40 @@ export default function CategoryDashboard() {
       );
     } catch (error) {
       console.error(error);
-      toast.error("تعذر تحديث حالة الفئة");
+      toast.error(error.response?.data?.message || "تعذر تحديث حالة الفئة");
     }
   };
 
-  // Resolve image URL
   const resolveImageUrl = (value) => {
     if (!value) return "";
-    if (value.startsWith("http://") || value.startsWith("https://"))
-      return value;
-    return `${API_URL}${value}`;
+
+    const rawUrl =
+      typeof value === "string"
+        ? value
+        : typeof value === "object"
+          ? value.url || value.path || value.filename || ""
+          : "";
+
+    if (!rawUrl) return "";
+
+    const normalizedUrl = String(rawUrl).replace(/\\/g, "/").trim();
+
+    if (
+      normalizedUrl.startsWith("http://") ||
+      normalizedUrl.startsWith("https://")
+    ) {
+      return normalizedUrl;
+    }
+
+    if (normalizedUrl.startsWith("/")) {
+      return `${API_URL}${normalizedUrl}`;
+    }
+
+    if (normalizedUrl.startsWith("images/")) {
+      return `${API_URL}/${normalizedUrl}`;
+    }
+
+    return `${API_URL}/images/${normalizedUrl}`;
   };
 
   return (
@@ -250,6 +257,7 @@ export default function CategoryDashboard() {
           </h2>
           <p>عرض الفئات، حذفها، وإنشاء فئات جديدة.</p>
         </div>
+
         <button
           type="button"
           className="refresh-btn"
@@ -257,12 +265,11 @@ export default function CategoryDashboard() {
           disabled={refreshing}
         >
           <RefreshCw size={16} />
-          {refreshing ? "جار التحديث" : "تحديث"}
+          {refreshing ? "جارِ التحديث" : "تحديث"}
         </button>
       </header>
 
       <div className="category-dashboard__grid">
-        {/* Create/Edit Form */}
         {showForm && (
           <form
             className="category-form"
@@ -314,14 +321,13 @@ export default function CategoryDashboard() {
               <button type="submit" className="btn-submit">
                 {editingId ? "تحديث" : "إنشاء"}
               </button>
-              <button type="button" className="btn-cancel" onClick={cancelEdit}>
+              <button type="button" className="btn-cancel" onClick={resetForm}>
                 إلغاء
               </button>
             </div>
           </form>
         )}
 
-        {/* Categories List */}
         <div className="categories-list">
           <div className="categories-list__head">
             <h3>قائمة الفئات</h3>
@@ -344,42 +350,47 @@ export default function CategoryDashboard() {
           </div>
 
           {loading ? (
-            <div className="categories-state">جار تحميل الفئات...</div>
+            <div className="state-box">جار تحميل الفئات...</div>
           ) : categories.length === 0 ? (
-            <div className="categories-state">لا توجد فئات حاليا</div>
+            <div className="state-box">لا توجد فئات حالياً</div>
           ) : (
-            <div className="categories-table">
+            <div className="cdb-categories-table">
               {categories.map((category) => (
-                <div className="category-card" key={category._id}>
+                <article className="cdb-category-card" key={category._id}>
                   <img
-                    src={
-                      resolveImageUrl(category.image) ||
-                      "https://via.placeholder.com/150?text=No+Image"
-                    }
+                    src={resolveImageUrl(category.image) || FALLBACK_IMAGE}
                     alt={category.name}
-                    className="category-image"
+                    className="cdb-category-image"
+                    onError={(event) => {
+                      event.currentTarget.onerror = null;
+                      event.currentTarget.src = FALLBACK_IMAGE;
+                    }}
                   />
-                  <div className="category-info">
-                    <div className="category-title">
+
+                  <div className="cdb-category-info">
+                    <div className="cdb-category-title">
                       <h4>{category.name}</h4>
                       <span
-                        className={`category-status ${
+                        className={`cdb-category-status ${
                           category.isActive ? "is-active" : "is-hidden"
                         }`}
                       >
                         {category.isActive ? "نشطة" : "مخفية"}
                       </span>
                     </div>
+
                     {category.description && (
-                      <p className="category-description">
+                      <p className="cdb-category-description">
                         {category.description}
                       </p>
                     )}
-                    <p className="category-date">
+
+                    <p className="cdb-category-date">
                       {new Date(category.createdAt).toLocaleDateString("ar-EG")}
                     </p>
                   </div>
-                  <div className="category-actions">
+
+                  <div className="cdb-category-actions">
                     <button
                       type="button"
                       className={`status-btn ${
@@ -394,6 +405,7 @@ export default function CategoryDashboard() {
                         <Eye size={16} />
                       )}
                     </button>
+
                     <button
                       type="button"
                       className="edit-btn"
@@ -401,6 +413,7 @@ export default function CategoryDashboard() {
                     >
                       <Edit2 size={16} />
                     </button>
+
                     <button
                       type="button"
                       className="delete-btn"
@@ -409,7 +422,7 @@ export default function CategoryDashboard() {
                       <Trash2 size={16} />
                     </button>
                   </div>
-                </div>
+                </article>
               ))}
             </div>
           )}

@@ -610,6 +610,12 @@
   position: relative;
 }
 
+.color-dot.active {
+  transform: scale(1.18);
+  border: 3px solid #334155;
+  box-shadow: 0 0 0 2px #ffffff, 0 8px 18px rgba(0, 0, 0, 0.28);
+}
+
 @keyframes colorFloat {
   0% { transform: translateY(0); }
   100% { transform: translateY(-3px); }

@@ -170,7 +170,7 @@ const getAllCategoriesAdmin = async (req, res) => {
   }
 };
 
-const toggleCategoryStatus = async (req, res) => {
+const toggleCategoryStatus = async (req, res) => { 
   try {
     const category = await Category.findById(req.params.id);
 

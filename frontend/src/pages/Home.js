@@ -68,6 +68,26 @@ export default function Home() {
     navigate("/products");
   }
 
+  function resolveCategoryImageUrl(value) {
+    if (!value) return "";
+
+    const rawUrl =
+      typeof value === "string"
+        ? value
+        : typeof value === "object"
+          ? value.url || value.path || value.filename || ""
+          : "";
+
+    if (!rawUrl || typeof rawUrl !== "string") return "";
+    if (rawUrl.startsWith("http://") || rawUrl.startsWith("https://")) {
+      return rawUrl;
+    }
+    if (rawUrl.startsWith("/")) {
+      return `${API_URL}${rawUrl}`;
+    }
+    return `${API_URL}/images/${rawUrl}`;
+  }
+
   return (
     <div className="home-container">
       {/* Hero Section */}
@@ -99,21 +119,34 @@ export default function Home() {
         <section className="categories-section">
           <h2 className="section-title">تصفح حسب الفئة</h2>
           <div className="categories-grid">
-            {categories.map((category) => (
-              <div
-                key={category._id}
-                className="category-card"
-                onClick={() => handleCategoryClick(category._id)}
-                role="button"
-                tabIndex={0}
-                onKeyPress={(e) =>
-                  e.key === "Enter" && handleCategoryClick(category._id)
-                }
-              >
-                <div className="category-icon">{category.name.charAt(0)}</div>
-                <h3 className="category-name">{category.name}</h3>
-              </div>
-            ))}
+            {categories.map((category) => {
+              const categoryImage = resolveCategoryImageUrl(category.image);
+              return (
+                <div
+                  key={category._id}
+                  className="category-card"
+                  onClick={() => handleCategoryClick(category._id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyPress={(e) =>
+                    e.key === "Enter" && handleCategoryClick(category._id)
+                  }
+                >
+                  <div className="category-icon">
+                    {categoryImage ? (
+                      <img
+                        src={categoryImage}
+                        alt={category.name}
+                        className="category-icon-image"
+                      />
+                    ) : (
+                      category.name.charAt(0)
+                    )}
+                  </div>
+                  <h3 className="category-name">{category.name}</h3>
+                </div>
+              );
+            })}
           </div>
         </section>
       )}
@@ -122,9 +155,7 @@ export default function Home() {
       <section className="products-section">
         <div className="section-header">
           <h2 className="section-title">المنتجات المميزة</h2>
-          <p className="section-subtitle">
-            اختر ما يناسبك من باقة منتجاتنا
-          </p>
+          <p className="section-subtitle">اختر ما يناسبك من باقة منتجاتنا</p>
         </div>
 
         {loading ? (
@@ -180,7 +211,7 @@ export default function Home() {
                       className="view-details-btn"
                       aria-label={`عرض تفاصيل ${product.name}`}
                     >
-                      <Eye size={16} />
+                      {/* <Eye size={16} /> */}
                       <span>التفاصيل</span>
                     </button>
 
