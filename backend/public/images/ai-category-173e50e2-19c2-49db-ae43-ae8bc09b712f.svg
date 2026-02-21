@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="768" height="768" viewBox="0 0 768 768">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+  <rect width="768" height="768" fill="url(#bg)"/>
+  <rect x="52" y="52" width="664" height="664" rx="36" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.16)"/>
+  <text x="384" y="350" text-anchor="middle" fill="#e2e8f0" font-size="40" font-family="Arial, sans-serif" font-weight="700">AI Category</text>
+  <text x="384" y="412" text-anchor="middle" fill="#cbd5e1" font-size="30" font-family="Arial, sans-serif">ساعات روليكس</text>
+  <text x="384" y="455" text-anchor="middle" fill="#94a3b8" font-size="26" font-family="Arial, sans-serif"></text>
+</svg>

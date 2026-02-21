@@ -102,6 +102,8 @@ export default function ProfileUser() {
       setFile(null);
       setPreviewImage(null);
 
+      window.dispatchEvent(new Event("user-profile-updated"));
+
       // Refresh user data without page reload
       await fetchProfile();
     } catch (err) {

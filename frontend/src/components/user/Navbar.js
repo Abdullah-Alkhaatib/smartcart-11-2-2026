@@ -1,7 +1,7 @@
 import "./navbar.css";
 import { ShoppingCart, Search, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useProductContext } from "../context/ProductContext";
@@ -26,7 +26,7 @@ export default function Navbar() {
   );
 
   // Fetch user profile on component mount
-  async function fetchUserProfile() {
+  const fetchUserProfile = useCallback(async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
@@ -54,7 +54,7 @@ export default function Navbar() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
   // get all categories for the dropdown
   async function fetchCategories() {
@@ -71,7 +71,19 @@ export default function Navbar() {
 
   useEffect(() => {
     fetchUserProfile();
-  }, [role]);
+  }, [role, fetchUserProfile]);
+
+  useEffect(() => {
+    function handleUserProfileUpdated() {
+      fetchUserProfile();
+    }
+
+    window.addEventListener("user-profile-updated", handleUserProfileUpdated);
+
+    return () => {
+      window.removeEventListener("user-profile-updated", handleUserProfileUpdated);
+    };
+  }, [fetchUserProfile]);
 
   useEffect(() => {
     fetchCategories();
