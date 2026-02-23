@@ -2,7 +2,7 @@ import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar.js";
 import {ProductProvider} from "../context/ProductContext.js";
 import { CartProvider } from "../context/CartContext.js";
-// import Footer from "./Footer";
+import Footer from "./Footer";
 
 export default function UserLayout() {
   return (
@@ -16,7 +16,7 @@ export default function UserLayout() {
             <Outlet />
           </main>
 
-           {/* <Footer /> */}
+           <Footer />
          </div>
       </CartProvider>
      </ProductProvider>

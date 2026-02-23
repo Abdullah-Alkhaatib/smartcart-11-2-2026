@@ -14,6 +14,8 @@ import SearchResults from "./pages/SearchResults.js";
 import ProfileUser from "./components/user/ProfileUser.js";
 import Cart from "./pages/Cart.js";
 import Nana from "./pages/Nana.js";
+import Categories from "./pages/Categories.js";
+import ContactUsUser from "./components/user/ContactUsUser.js";
 
 function App() {
   const { role, loading } = useUserRole();
@@ -61,6 +63,7 @@ function App() {
             <Route path="/categories" element={<Dashboard />} />
             <Route path="/products" element={<Dashboard />} />
             <Route path="/archived-products" element={<Dashboard />} />
+            <Route path="/contactUs" element={<Dashboard />} />
             <Route path="/logout" element={<Dashboard />} />
           </>
         ) : (
@@ -71,6 +74,8 @@ function App() {
             <Route path="search-results" element={<SearchResults />} />
             <Route path="profile" element={<ProfileUser />} />
             <Route path="cart" element={<Cart />} />
+            <Route path="categories" element={<Categories />} />
+            <Route path="contactUs" element={<ContactUsUser />} />
             <Route path="nana" element={<Nana />} />
           </Route>
         )}

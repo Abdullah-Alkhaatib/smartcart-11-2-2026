@@ -25,6 +25,8 @@ import ArchivedProducts from './ArchivedProducts';
 // import orders icon
 // import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 // import OrdersDashboards from './OrdersDashboards';
+import ContactMailIcon from '@mui/icons-material/ContactMail';
+import ContactUsAdmin from './ContactUsAdmin';
 
 const NAVIGATION = [
   {
@@ -60,6 +62,11 @@ const NAVIGATION = [
     segment: 'archived-products',
     title: 'المنتجات المحذوفة',
     icon: <ArchiveIcon />
+  },
+  {
+    segment: 'contactUs',
+    title: 'رسائل التواصل',
+    icon: <ContactMailIcon />
   },
   {
     segment: 'logout',
@@ -104,6 +111,7 @@ function DemoPageContent({ pathname }) {
       {pathname === '/categories' ? <CategoryDashboard /> : null}
       {pathname === '/products' ? <ProductDashboard /> : null}
       {pathname === '/archived-products' ? <ArchivedProducts /> : null}
+      {pathname === '/contactUs' ? <ContactUsAdmin /> : null}
       {pathname === '/logout' ? handleLogout() : null}
     </Box>
   );

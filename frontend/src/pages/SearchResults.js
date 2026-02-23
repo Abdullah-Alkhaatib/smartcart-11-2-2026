@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ShoppingCart, ArrowRight, Search, Eye } from "lucide-react";
+import { ShoppingCart, ArrowRight, Search, Eye, Package } from "lucide-react";
 import { useCart } from "../components/context/CartContext";
 import toast from "react-hot-toast";
+import "./products.css";
 import "./SearchResults.css";
 import API_URL from "../config/api";
 
@@ -13,6 +14,7 @@ export default function SearchResults() {
 
   const [searchResults, setSearchResults] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedColors, setSelectedColors] = useState({});
 
   useEffect(() => {
     if (location.state?.results) {
@@ -29,17 +31,46 @@ export default function SearchResults() {
     return price.toFixed(2);
   };
 
+  const getSelectedImage = (product) => {
+    if (!product.images || product.images.length === 0) return null;
+
+    const selectedColor = selectedColors[product._id];
+    if (selectedColor) {
+      const selected = product.images.find((img) => img.color === selectedColor);
+      if (selected) return selected;
+    }
+
+    const firstAvailableImage = product.images.find((img) => img.stock > 0);
+    return firstAvailableImage || product.images[0];
+  };
+
+  const handleColorSelect = (productId, color) => {
+    setSelectedColors((prev) => ({
+      ...prev,
+      [productId]: color,
+    }));
+  };
+
+  const getTotalStock = (product) => {
+    if (!product.images || product.images.length === 0) return 0;
+    return product.images.reduce((sum, image) => sum + (image.stock || 0), 0);
+  };
+
   const handleAddToCart = async (product) => {
     if (!product.images || product.images.length === 0) {
-      toast.error("المنتج لا يحتوي على صور");
+      toast.error("المنتج غير متوفر");
       return;
     }
 
-    const firstImage = product.images[0];
-    const selectedColor = firstImage.color || "default";
+    const selectedImage = getSelectedImage(product);
+
+    if (!selectedImage || selectedImage.stock <= 0) {
+      toast.error("المنتج غير متوفر بأي لون");
+      return;
+    }
 
     try {
-      await addToCart(product._id, selectedColor, 1);
+      await addToCart(product._id, selectedImage.color, 1);
     } catch (error) {
       console.error("Error adding to cart:", error);
     }
@@ -89,83 +120,116 @@ export default function SearchResults() {
       </header>
 
       <main className="sr-container">
-        <div className="sr-grid">
+        <div className="products-grid sr-grid">
           {searchResults.map((product, index) => {
             const shortDescription = product.description
-              ? product.description.substring(0, 100)
+              ? product.description.substring(0, 80)
               : "لا يوجد وصف متاح";
+            const totalStock = getTotalStock(product);
+            const selectedImage = getSelectedImage(product);
+            const hasDiscount = product.discount > 0;
 
             return (
-              <article key={`${product._id}-${index}`} className="sr-card">
-                {product.discount > 0 && (
-                  <span className="sr-badge">-{product.discount}%</span>
+              <article key={`${product._id}-${index}`} className="product-card sr-card">
+                {hasDiscount && (
+                  <div className="product-badge discount-badge sr-badge">-{product.discount}%</div>
+                )}
+                {totalStock === 0 && (
+                  <div className="product-badge out-of-stock-badge">غير متوفر</div>
+                )}
+                {totalStock > 0 && totalStock <= 5 && !hasDiscount && (
+                  <div className="product-badge low-stock-badge">آخر {totalStock} قطع</div>
                 )}
 
                 <div
-                  className="sr-image-wrap"
+                  className="product-image-wrapper sr-image-wrap"
                   onClick={() => navigate(`/product/${product._id}`)}
                 >
                   {product.images && product.images.length > 0 ? (
                     <img
-                      className="sr-image"
-                      src={`${API_URL}/images/${product.images[0].url}`}
+                      className="product-image sr-image"
+                      src={
+                        selectedImage?.url
+                          ? `${API_URL}/images/${selectedImage.url}`
+                          : "https://via.placeholder.com/300x220?text=No+Image"
+                      }
                       alt={product.name}
                     />
                   ) : (
-                    <div className="sr-no-image">لا توجد صورة</div>
+                    <div className="no-image-placeholder sr-no-image">
+                      <Package size={48} />
+                      <span>لا توجد صورة</span>
+                    </div>
                   )}
+
+                  <div className="product-overlay">
+                    <button
+                      className="overlay-btn view-btn"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        navigate(`/product/${product._id}`);
+                      }}
+                    >
+                      <Eye size={18} />
+                      <span>عرض التفاصيل</span>
+                    </button>
+                  </div>
                 </div>
 
-                <div className="sr-info">
+                <div className="product-info sr-info">
+                  <div className="product-category sr-category">
+                    {product.category?.name || "غير محدد"}
+                  </div>
                   <h3
-                    className="sr-product-title"
+                    className="product-title sr-product-title"
                     onClick={() => navigate(`/product/${product._id}`)}
                   >
                     {product.name}
                   </h3>
-                  <p className="sr-description">{shortDescription}</p>
-
-                  {product.category && (
-                    <div className="sr-category">
-                      <span className="sr-category-badge">
-                        {product.category.name}
-                      </span>
-                    </div>
-                  )}
+                  <p className="product-description sr-description">
+                    {shortDescription}
+                    {product.description?.length > 80 ? "..." : ""}
+                  </p>
 
                   {product.images && product.images.length > 1 && (
-                    <div className="sr-colors">
-                      <span className="sr-colors-label">الألوان:</span>
-                      <div className="sr-colors-dots">
-                        {product.images.slice(0, 5).map((img, idx) => (
+                    <div className="product-colors sr-colors">
+                      <span className="colors-label sr-colors-label">الألوان المتوفرة:</span>
+                      <div className="colors-list sr-colors-dots">
+                        {product.images.slice(0, 4).map((img, idx) => (
                           <div
                             key={idx}
-                            className="sr-color-thumb"
+                            className={`color-dot sr-color-thumb ${selectedImage?.color === img.color ? "active" : ""}`}
                             style={{
-                              backgroundImage: `url(${API_URL}/images/${img.url})`,
+                              backgroundColor: img.color,
+                              opacity: img.stock > 0 ? 1 : 0.3,
                             }}
                             title={img.color}
+                            onClick={() => handleColorSelect(product._id, img.color)}
                           ></div>
                         ))}
-                        {product.images.length > 5 && (
-                          <span className="sr-more-colors">
-                            +{product.images.length - 5}
+                        {product.images.length > 4 && (
+                          <span className="more-colors sr-more-colors">
+                            +{product.images.length - 4}
                           </span>
                         )}
                       </div>
                     </div>
                   )}
 
-                  <div className="sr-footer">
-                    <div className="sr-price-block">
-                      <span className="sr-price-new">
-                        {product.discount > 0
-                          ? `${calculateFinalPrice(product.price, product.discount)} د.ك`
-                          : `${product.price} د.ك`}
-                      </span>
-                      {product.discount > 0 && (
-                        <span className="sr-price-old">
-                          {product.price} د.ك
+                  <div className="product-footer sr-footer">
+                    <div className="product-pricing sr-price-block">
+                      {hasDiscount ? (
+                        <>
+                          <span className="current-price sr-price-new">
+                            {calculateFinalPrice(product.price, product.discount)} د.ك
+                          </span>
+                          <span className="old-price sr-price-old">
+                            {product.price.toFixed(2)} د.ك
+                          </span>
+                        </>
+                      ) : (
+                        <span className="current-price sr-price-new">
+                          {product.price.toFixed(2)} د.ك
                         </span>
                       )}
                     </div>
@@ -181,11 +245,16 @@ export default function SearchResults() {
                     </button>
 
                     <button
-                      className="sr-cart-btn"
+                      className={`add-to-cart-btn sr-cart-btn ${!selectedImage || selectedImage.stock === 0 ? "disabled" : ""}`}
                       onClick={() => handleAddToCart(product)}
+                      disabled={!selectedImage || selectedImage.stock === 0}
                     >
-                      <ShoppingCart size={16} />
-                      <span>أضف للسلة</span>
+                      <ShoppingCart size={18} />
+                      <span>
+                        {!selectedImage || selectedImage.stock === 0
+                          ? "غير متوفر"
+                          : "أضف للسلة"}
+                      </span>
                     </button>
                   </div>
                 </div>

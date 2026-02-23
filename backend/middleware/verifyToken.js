@@ -28,7 +28,7 @@ function verifyAdmin(req, res, next) {
 };
 
 // verifyToken and authorization (user can access their own data or admin can access any data)
-const verifyTokenAndAuthorization = (req, res, next) => {
+const verifyTokenAndAuthorization = (req, res, next) => { // authorization يعني صلاحية الوصول لبيانات معينة يعني المستخدم العادي يقدر يوصل بياناته هو فقط أو الادمن يقدر يوصل أي بيانات
     verifyToken(req, res, () => {
         if (req.user._id === req.params.id || req.user.role === 'admin') {
             next();
