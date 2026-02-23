@@ -1,0 +1,263 @@
+.sdb-root {
+	width: min(1200px, 94vw);
+	margin: 20px auto 40px;
+	color: #e2e8f0;
+}
+
+.sdb-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 16px;
+	flex-wrap: wrap;
+	margin-bottom: 20px;
+}
+
+.sdb-header h2 {
+	margin: 0 0 6px;
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	font-size: 24px;
+	color: #f8fafc;
+}
+
+.sdb-header p {
+	margin: 0;
+	font-size: 14px;
+	color: rgba(226, 232, 240, 0.7);
+}
+
+.sdb-refresh-btn {
+	border: 1px solid rgba(148, 163, 184, 0.2);
+	border-radius: 999px;
+	background: rgba(15, 23, 42, 0.65);
+	color: #e2e8f0;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 16px;
+	cursor: pointer;
+}
+
+.sdb-refresh-btn:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.sdb-grid {
+	display: grid;
+	grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+	gap: 16px;
+}
+
+.sdb-conversations,
+.sdb-chat {
+	background: rgba(15, 23, 42, 0.72);
+	border: 1px solid rgba(148, 163, 184, 0.16);
+	border-radius: 18px;
+	box-shadow: 0 18px 40px rgba(2, 6, 23, 0.45);
+}
+
+.sdb-conversations {
+	padding: 14px;
+}
+
+.sdb-conversations-head {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
+.sdb-conversations-head h3 {
+	margin: 0;
+	color: #f8fafc;
+	font-size: 16px;
+}
+
+.sdb-conversations-head span {
+	min-width: 26px;
+	height: 26px;
+	border-radius: 999px;
+	background: rgba(59, 130, 246, 0.2);
+	color: #bfdbfe;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 12px;
+}
+
+.sdb-conversations-list {
+	display: grid;
+	gap: 8px;
+	max-height: 620px;
+	overflow-y: auto;
+}
+
+.sdb-conversation-item {
+	border: 1px solid rgba(148, 163, 184, 0.2);
+	background: rgba(15, 23, 42, 0.55);
+	color: #e2e8f0;
+	text-align: right;
+	border-radius: 12px;
+	padding: 10px;
+	cursor: pointer;
+}
+
+.sdb-conversation-item.is-active {
+	border-color: rgba(59, 130, 246, 0.75);
+	background: rgba(30, 64, 175, 0.2);
+}
+
+.sdb-conversation-item__top {
+	display: flex;
+	justify-content: space-between;
+	gap: 8px;
+	margin-bottom: 6px;
+}
+
+.sdb-conversation-item__top small {
+	color: rgba(203, 213, 225, 0.75);
+}
+
+.sdb-conversation-item p {
+	margin: 0;
+	color: rgba(226, 232, 240, 0.9);
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	font-size: 13px;
+}
+
+.sdb-chat {
+	display: flex;
+	flex-direction: column;
+	min-height: 620px;
+}
+
+.sdb-chat-head {
+	padding: 14px 16px;
+	border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 10px;
+}
+
+.sdb-chat-head h3 {
+	margin: 0;
+	color: #f8fafc;
+	font-size: 16px;
+}
+
+.sdb-chat-head span {
+	color: rgba(203, 213, 225, 0.75);
+	font-size: 12px;
+}
+
+.sdb-messages {
+	flex: 1;
+	overflow-y: auto;
+	padding: 14px 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.sdb-message {
+	max-width: 75%;
+	border-radius: 12px;
+	padding: 10px 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.sdb-message p {
+	margin: 0;
+	line-height: 1.6;
+	white-space: pre-wrap;
+}
+
+.sdb-message span {
+	font-size: 11px;
+	color: rgba(203, 213, 225, 0.8);
+}
+
+.sdb-message--user {
+	margin-left: auto;
+	background: rgba(51, 65, 85, 0.7);
+	border: 1px solid rgba(100, 116, 139, 0.3);
+}
+
+.sdb-message--admin {
+	margin-right: auto;
+	background: rgba(30, 64, 175, 0.25);
+	border: 1px solid rgba(59, 130, 246, 0.45);
+}
+
+.sdb-reply {
+	border-top: 1px solid rgba(148, 163, 184, 0.16);
+	padding: 12px;
+	display: flex;
+	gap: 8px;
+}
+
+.sdb-reply input {
+	flex: 1;
+	border: 1px solid rgba(148, 163, 184, 0.25);
+	border-radius: 10px;
+	background: rgba(15, 23, 42, 0.6);
+	color: #e2e8f0;
+	padding: 10px;
+}
+
+.sdb-reply input:focus {
+	outline: none;
+	border-color: rgba(59, 130, 246, 0.7);
+}
+
+.sdb-reply button {
+	border: none;
+	border-radius: 10px;
+	background: linear-gradient(135deg, #2563eb, #1d4ed8);
+	color: #ffffff;
+	min-width: 110px;
+	padding: 0 12px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	cursor: pointer;
+}
+
+.sdb-reply button:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.sdb-state,
+.sdb-empty-chat {
+	color: rgba(203, 213, 225, 0.85);
+}
+
+.sdb-empty-chat {
+	margin: auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+}
+
+@media (max-width: 980px) {
+	.sdb-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.sdb-chat {
+		min-height: 500px;
+	}
+}

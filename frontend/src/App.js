@@ -16,6 +16,7 @@ import Cart from "./pages/Cart.js";
 import Nana from "./pages/Nana.js";
 import Categories from "./pages/Categories.js";
 import ContactUsUser from "./components/user/ContactUsUser.js";
+import SupportUser from "./components/user/SupportUser.js";
 
 function App() {
   const { role, loading } = useUserRole();
@@ -64,6 +65,7 @@ function App() {
             <Route path="/products" element={<Dashboard />} />
             <Route path="/archived-products" element={<Dashboard />} />
             <Route path="/contactUs" element={<Dashboard />} />
+            <Route path="/support" element={<Dashboard />} />
             <Route path="/logout" element={<Dashboard />} />
           </>
         ) : (
@@ -76,6 +78,7 @@ function App() {
             <Route path="cart" element={<Cart />} />
             <Route path="categories" element={<Categories />} />
             <Route path="contactUs" element={<ContactUsUser />} />
+            <Route path="support" element={<SupportUser />} />
             <Route path="nana" element={<Nana />} />
           </Route>
         )}
