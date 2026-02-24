@@ -17,6 +17,30 @@ export default function SearchResults() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedColors, setSelectedColors] = useState({});
 
+  const normalizeColorValue = (color) =>
+    String(color || "")
+      .trim()
+      .toLowerCase();
+
+  const getUniqueColorImages = (images = []) => {
+    const uniqueByColor = new Map();
+
+    images.forEach((image) => {
+      const colorKey = normalizeColorValue(image?.color);
+      if (!colorKey) return;
+
+      const existingImage = uniqueByColor.get(colorKey);
+      const existingStock = existingImage?.stock || 0;
+      const currentStock = image?.stock || 0;
+
+      if (!existingImage || (existingStock <= 0 && currentStock > 0)) {
+        uniqueByColor.set(colorKey, image);
+      }
+    });
+
+    return Array.from(uniqueByColor.values());
+  };
+
   useEffect(() => {
     if (location.state?.results) {
       setSearchResults(location.state.results);
@@ -37,8 +61,16 @@ export default function SearchResults() {
 
     const selectedColor = selectedColors[product._id];
     if (selectedColor) {
+      const selectedColorKey = normalizeColorValue(selectedColor);
+
+      const selectedInStock = product.images.find(
+        (img) =>
+          normalizeColorValue(img.color) === selectedColorKey && img.stock > 0,
+      );
+      if (selectedInStock) return selectedInStock;
+
       const selected = product.images.find(
-        (img) => img.color === selectedColor,
+        (img) => normalizeColorValue(img.color) === selectedColorKey,
       );
       if (selected) return selected;
     }
@@ -130,6 +162,7 @@ export default function SearchResults() {
               : "لا يوجد وصف متاح";
             const totalStock = getTotalStock(product);
             const selectedImage = getSelectedImage(product);
+            const uniqueColorImages = getUniqueColorImages(product.images);
             const hasDiscount = product.discount > 0;
 
             return (
@@ -203,17 +236,17 @@ export default function SearchResults() {
                     {product.description?.length > 80 ? "..." : ""}
                   </p>
 
-                  {product.images && product.images.length > 1 && (
+                  {uniqueColorImages.length > 1 && (
                     <div className="product-colors sr-colors">
                       <span className="colors-label sr-colors-label">
                         الألوان المتوفرة:
                       </span>
                       <div className="colors-list sr-colors-dots">
-                        {product.images.slice(0, 4).map((img, idx) => (
+                        {uniqueColorImages.slice(0, 4).map((img, idx) => (
                           <button
-                            key={idx}
+                            key={`${normalizeColorValue(img.color)}-${idx}`}
                             type="button"
-                            className={`color-chip sr-color-chip ${selectedImage?.color === img.color ? "active" : ""} ${img.stock > 0 ? "" : "out-of-stock"}`}
+                            className={`color-chip sr-color-chip ${normalizeColorValue(selectedImage?.color) === normalizeColorValue(img.color) ? "active" : ""} ${img.stock > 0 ? "" : "out-of-stock"}`}
                             style={getColorChipStyle(img.color)}
                             aria-label={img.color || `اللون ${idx + 1}`}
                             title={img.color || `اللون ${idx + 1}`}
@@ -222,9 +255,9 @@ export default function SearchResults() {
                             }
                           />
                         ))}
-                        {product.images.length > 4 && (
+                        {uniqueColorImages.length > 4 && (
                           <span className="more-colors sr-more-colors">
-                            +{product.images.length - 4}
+                            +{uniqueColorImages.length - 4}
                           </span>
                         )}
                       </div>

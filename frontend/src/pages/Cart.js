@@ -15,6 +15,8 @@ export default function Cart() {
   const { cartItems, loading, removeFromCart, updateCartQuantity } = useCart();
   const navigate = useNavigate();
 
+  const isMongoObjectId = (value) => /^[a-f\d]{24}$/i.test(String(value || ""));
+
   // Debug: Log cart items to console
   console.log("Cart Items:", cartItems);
 
@@ -136,9 +138,12 @@ export default function Cart() {
 
               const effectivePrice = getEffectivePrice(product);
               const itemTotal = effectivePrice * item.quantity;
+              const colorLabel = String(item.color || "غير محدد").trim();
               const categoryLabel =
                 typeof product.category === "string"
-                  ? product.category
+                  ? isMongoObjectId(product.category)
+                    ? ""
+                    : product.category
                   : product.category?.name;
 
               return (
@@ -168,12 +173,12 @@ export default function Cart() {
                       {product.description?.substring(0, 100)}
                     </p>
                     <div className="cart-item-meta">
-                      <span className="cart-item-color">
-                        <span
-                          className="color-dot"
-                          style={{ backgroundColor: item.color }}
-                        ></span>
-                        {item.color}
+                      <span
+                        className="cart-item-color"
+                        title={`اللون: ${colorLabel}`}
+                        aria-label={`اللون: ${colorLabel}`}
+                      >
+                        اللون: {colorLabel}
                       </span>
                       {categoryLabel && (
                         <span className="cart-item-category">

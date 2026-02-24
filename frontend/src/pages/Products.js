@@ -31,12 +31,46 @@ export default function Products() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
 
+  const normalizeColorValue = (color) =>
+    String(color || "")
+      .trim()
+      .toLowerCase();
+
+  const getUniqueColorImages = (images = []) => {
+    const uniqueByColor = new Map();
+
+    images.forEach((image) => {
+      const colorKey = normalizeColorValue(image?.color);
+      if (!colorKey) return;
+
+      const existingImage = uniqueByColor.get(colorKey);
+      const existingStock = existingImage?.stock || 0;
+      const currentStock = image?.stock || 0;
+
+      if (!existingImage || (existingStock <= 0 && currentStock > 0)) {
+        uniqueByColor.set(colorKey, image);
+      }
+    });
+
+    return Array.from(uniqueByColor.values());
+  };
+
   const getSelectedImage = (product) => {
     if (!product.images || product.images.length === 0) return null;
 
     const selectedColor = selectedColors[product._id];
     if (selectedColor) {
-      const selected = product.images.find((img) => img.color === selectedColor);
+      const selectedColorKey = normalizeColorValue(selectedColor);
+
+      const selectedInStock = product.images.find(
+        (img) =>
+          normalizeColorValue(img.color) === selectedColorKey && img.stock > 0,
+      );
+      if (selectedInStock) return selectedInStock;
+
+      const selected = product.images.find(
+        (img) => normalizeColorValue(img.color) === selectedColorKey,
+      );
       if (selected) return selected;
     }
 
@@ -301,6 +335,7 @@ export default function Products() {
               products.slice(0, visibleCount).map((product) => {
                 const totalStock = getTotalStock(product);
                 const selectedImage = getSelectedImage(product);
+                const uniqueColorImages = getUniqueColorImages(product.images);
                 const finalPrice =
                   product.discount > 0
                     ? product.price - (product.price * product.discount) / 100
@@ -375,15 +410,15 @@ export default function Products() {
                       </p>
 
                       {/* Colors Available */}
-                      {product.images && product.images.length > 1 && (
+                      {uniqueColorImages.length > 1 && (
                         <div className="product-colors">
                           <span className="colors-label">
                             الألوان المتوفرة:
                           </span>
                           <div className="colors-list">
-                            {product.images.slice(0, 4).map((img, index) => (
+                            {uniqueColorImages.slice(0, 4).map((img, index) => (
                               <button
-                                key={index}
+                                key={`${normalizeColorValue(img.color)}-${index}`}
                                 type="button"
                                 className={`color-chip ${selectedImage?.color === img.color ? "active" : ""} ${img.stock > 0 ? "" : "out-of-stock"}`}
                                 style={getColorChipStyle(img.color)}
@@ -394,9 +429,9 @@ export default function Products() {
                                 }
                               />
                             ))}
-                            {product.images.length > 4 && (
+                            {uniqueColorImages.length > 4 && (
                               <span className="more-colors">
-                                +{product.images.length - 4}
+                                +{uniqueColorImages.length - 4}
                               </span>
                             )}
                           </div>
