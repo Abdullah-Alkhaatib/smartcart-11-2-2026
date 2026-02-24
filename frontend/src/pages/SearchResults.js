@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import "./products.css";
 import "./SearchResults.css";
 import API_URL from "../config/api";
+import { getColorChipStyle } from "../utils/colorUtils";
 
 export default function SearchResults() {
   const location = useLocation();
@@ -36,7 +37,9 @@ export default function SearchResults() {
 
     const selectedColor = selectedColors[product._id];
     if (selectedColor) {
-      const selected = product.images.find((img) => img.color === selectedColor);
+      const selected = product.images.find(
+        (img) => img.color === selectedColor,
+      );
       if (selected) return selected;
     }
 
@@ -130,15 +133,24 @@ export default function SearchResults() {
             const hasDiscount = product.discount > 0;
 
             return (
-              <article key={`${product._id}-${index}`} className="product-card sr-card">
+              <article
+                key={`${product._id}-${index}`}
+                className="product-card sr-card"
+              >
                 {hasDiscount && (
-                  <div className="product-badge discount-badge sr-badge">-{product.discount}%</div>
+                  <div className="product-badge discount-badge sr-badge">
+                    -{product.discount}%
+                  </div>
                 )}
                 {totalStock === 0 && (
-                  <div className="product-badge out-of-stock-badge">غير متوفر</div>
+                  <div className="product-badge out-of-stock-badge">
+                    غير متوفر
+                  </div>
                 )}
                 {totalStock > 0 && totalStock <= 5 && !hasDiscount && (
-                  <div className="product-badge low-stock-badge">آخر {totalStock} قطع</div>
+                  <div className="product-badge low-stock-badge">
+                    آخر {totalStock} قطع
+                  </div>
                 )}
 
                 <div
@@ -193,19 +205,22 @@ export default function SearchResults() {
 
                   {product.images && product.images.length > 1 && (
                     <div className="product-colors sr-colors">
-                      <span className="colors-label sr-colors-label">الألوان المتوفرة:</span>
+                      <span className="colors-label sr-colors-label">
+                        الألوان المتوفرة:
+                      </span>
                       <div className="colors-list sr-colors-dots">
                         {product.images.slice(0, 4).map((img, idx) => (
-                          <div
+                          <button
                             key={idx}
-                            className={`color-dot sr-color-thumb ${selectedImage?.color === img.color ? "active" : ""}`}
-                            style={{
-                              backgroundColor: img.color,
-                              opacity: img.stock > 0 ? 1 : 0.3,
-                            }}
-                            title={img.color}
-                            onClick={() => handleColorSelect(product._id, img.color)}
-                          ></div>
+                            type="button"
+                            className={`color-chip sr-color-chip ${selectedImage?.color === img.color ? "active" : ""} ${img.stock > 0 ? "" : "out-of-stock"}`}
+                            style={getColorChipStyle(img.color)}
+                            aria-label={img.color || `اللون ${idx + 1}`}
+                            title={img.color || `اللون ${idx + 1}`}
+                            onClick={() =>
+                              handleColorSelect(product._id, img.color)
+                            }
+                          />
                         ))}
                         {product.images.length > 4 && (
                           <span className="more-colors sr-more-colors">
@@ -221,7 +236,11 @@ export default function SearchResults() {
                       {hasDiscount ? (
                         <>
                           <span className="current-price sr-price-new">
-                            {calculateFinalPrice(product.price, product.discount)} د.ك
+                            {calculateFinalPrice(
+                              product.price,
+                              product.discount,
+                            )}{" "}
+                            د.ك
                           </span>
                           <span className="old-price sr-price-old">
                             {product.price.toFixed(2)} د.ك

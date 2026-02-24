@@ -17,6 +17,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import API_URL from "../config/api";
+import { getColorChipStyle } from "../utils/colorUtils";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -171,10 +172,10 @@ export default function Products() {
   // Price ranges
   const priceRanges = [
     { label: "الكل", min: null, max: null, name: null },
-    { label: "أقل من 50$", min: 0, max: 50, name: "0-50" },
-    { label: "50$ - 100$", min: 50, max: 100, name: "50-100" },
-    { label: "100$ - 500$", min: 100, max: 500, name: "100-500" },
-    { label: "أكثر من 500$", min: 500, max: null, name: "500+" },
+    { label: "أقل من 50 د.ك", min: 0, max: 50, name: "0-50" },
+    { label: "50 د.ك - 100 د.ك", min: 50, max: 100, name: "50-100" },
+    { label: "100 د.ك - 500 د.ك", min: 100, max: 500, name: "100-500" },
+    { label: "أكثر من 500 د.ك", min: 500, max: null, name: "500+" },
   ];
 
   return (
@@ -381,18 +382,17 @@ export default function Products() {
                           </span>
                           <div className="colors-list">
                             {product.images.slice(0, 4).map((img, index) => (
-                              <div
+                              <button
                                 key={index}
-                                className={`color-dot ${selectedImage?.color === img.color ? "active" : ""}`}
-                                style={{
-                                  backgroundColor: img.color,
-                                  opacity: img.stock > 0 ? 1 : 0.3,
-                                }}
-                                title={img.color}
+                                type="button"
+                                className={`color-chip ${selectedImage?.color === img.color ? "active" : ""} ${img.stock > 0 ? "" : "out-of-stock"}`}
+                                style={getColorChipStyle(img.color)}
+                                aria-label={img.color || `اللون ${index + 1}`}
+                                title={img.color || `اللون ${index + 1}`}
                                 onClick={() =>
                                   handleColorSelect(product._id, img.color)
                                 }
-                              ></div>
+                              />
                             ))}
                             {product.images.length > 4 && (
                               <span className="more-colors">
