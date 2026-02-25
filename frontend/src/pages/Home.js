@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { ShoppingCart, Star, TrendingUp, Zap, Eye } from "lucide-react";
+import { ShoppingCart, Star, TrendingUp, Zap } from "lucide-react";
 import { useCart } from "../components/context/CartContext";
 import { useProductContext } from "../components/context/ProductContext";
 import API_URL from "../config/api";
@@ -12,6 +12,7 @@ export default function Home() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(4);
   const { addToCart } = useCart();
   const { setSelectedCategory } = useProductContext();
   const navigate = useNavigate();
@@ -59,8 +60,8 @@ export default function Home() {
     addToCart(product._id, firstAvailableColor, 1);
   }
 
-  // عرض أول 8 منتجات
-  const displayedProducts = products.slice(0, 8);
+  const displayedProducts = products.slice(0, visibleCount);
+  const hasMoreProducts = products.length > visibleCount;
 
   // Handle category click
   function handleCategoryClick(categoryId) {
@@ -164,70 +165,84 @@ export default function Home() {
             <p>جارِ تحميل المنتجات...</p>
           </div>
         ) : displayedProducts.length > 0 ? (
-          <div className="products-grid">
-            {displayedProducts.map((product) => (
-              <div key={product._id} className="product-card">
-                <div className="product-image-wrapper">
-                  <img
-                    src={
-                      product.images && product.images[0]?.url
-                        ? `${API_URL}/images/${product.images[0].url}`
-                        : "https://via.placeholder.com/300x220?text=No+Image"
-                    }
-                    alt={product.name}
-                    className="product-image"
-                  />
-                  {product.discount > 0 && (
-                    <span className="product-badge">-{product.discount}%</span>
-                  )}
-                </div>
+          <>
+            <div className="products-grid">
+              {displayedProducts.map((product) => (
+                <div key={product._id} className="product-card">
+                  <div className="product-image-wrapper">
+                    <img
+                      src={
+                        product.images && product.images[0]?.url
+                          ? `${API_URL}/images/${product.images[0].url}`
+                          : "https://via.placeholder.com/300x220?text=No+Image"
+                      }
+                      alt={product.name}
+                      className="product-image"
+                    />
+                    {product.discount > 0 && (
+                      <span className="product-badge">-{product.discount}%</span>
+                    )}
+                  </div>
 
-                <div className="product-info">
-                  <h3 className="product-title">{product.name}</h3>
-                  <p className="product-description">
-                    {product.description?.substring(0, 60)}
-                  </p>
+                  <div className="product-info">
+                    <h3 className="product-title">{product.name}</h3>
+                    <p className="product-description">
+                      {product.description?.substring(0, 60)}
+                    </p>
 
-                  <div className="product-footer">
-                    <div className="product-price">
-                      <span className="current-price">
-                        {product.discount > 0
-                          ? (
-                              product.price -
-                              (product.price * product.discount) / 100
-                            ).toFixed(2)
-                          : product.price}{" "}
-                        د.ك
-                      </span>
-                      {product.discount > 0 && (
-                        <span className="old-price">{product.price} د.ك</span>
-                      )}
+                    <div className="product-footer">
+                      <div className="product-price">
+                        <span className="current-price">
+                          {product.discount > 0
+                            ? (
+                                product.price -
+                                (product.price * product.discount) / 100
+                              ).toFixed(2)
+                            : product.price}{" "}
+                          د.ك
+                        </span>
+                        {product.discount > 0 && (
+                          <span className="old-price">{product.price} د.ك</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="product-actions">
+                      <button
+                        onClick={() => navigate(`/product/${product._id}`)}
+                        className="view-details-btn"
+                        aria-label={`عرض تفاصيل ${product.name}`}
+                      >
+                        {/* <Eye size={16} /> */}
+                        <span>التفاصيل</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleAddToCart(product)}
+                        className="add-to-cart-btn"
+                        aria-label={`إضافة ${product.name} إلى السلة`}
+                      >
+                        <ShoppingCart size={16} />
+                        <span>أضف للسلة</span>
+                      </button>
                     </div>
                   </div>
-
-                  <div className="product-actions">
-                    <button
-                      onClick={() => navigate(`/product/${product._id}`)}
-                      className="view-details-btn"
-                      aria-label={`عرض تفاصيل ${product.name}`}
-                    >
-                      {/* <Eye size={16} /> */}
-                      <span>التفاصيل</span>
-                    </button>
-
-                    <button
-                      onClick={() => handleAddToCart(product)}
-                      className="add-to-cart-btn"
-                      aria-label={`إضافة ${product.name} إلى السلة`}
-                    >
-                      <ShoppingCart size={16} />
-                      <span>أضف للسلة</span>
-                    </button>
-                  </div>
                 </div>
+              ))}
+            </div>
+
+            {hasMoreProducts && (
+              <div className="load-more-wrapper">
+                <button
+                  type="button"
+                  className="load-more-btn"
+                  onClick={() => setVisibleCount((prev) => prev + 4)}
+                >
+                  Load more
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         ) : (
           <div className="empty-state">
             <p>لا توجد منتجات متاحة حاليًا</p>

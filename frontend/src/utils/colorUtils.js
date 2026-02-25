@@ -24,6 +24,25 @@ const ARABIC_COLOR_MAP = {
   ذهبي: "#d4af37",
 };
 
+const ENGLISH_COLOR_MAP = {
+  black: "#000000",
+  white: "#ffffff",
+  gray: "#808080",
+  grey: "#808080",
+  silver: "#c0c0c0",
+  red: "#dc2626",
+  blue: "#2563eb",
+  navy: "#1e3a8a",
+  indigo: "#4b0082",
+  green: "#16a34a",
+  yellow: "#eab308",
+  orange: "#f97316",
+  purple: "#7c3aed",
+  pink: "#ec4899",
+  brown: "#92400e",
+  gold: "#d4af37",
+};
+
 const HEX_COLOR_REGEX = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
 
 const normalizeHex = (hex) => {
@@ -66,6 +85,10 @@ const getMappedColor = (value) => {
   const lowered = trimmed.toLowerCase();
   if (ARABIC_COLOR_MAP[lowered]) {
     return ARABIC_COLOR_MAP[lowered];
+  }
+
+  if (ENGLISH_COLOR_MAP[lowered]) {
+    return ENGLISH_COLOR_MAP[lowered];
   }
 
   return trimmed;

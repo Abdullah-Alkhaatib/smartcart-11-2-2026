@@ -357,6 +357,33 @@
 	transform: scale(0.97);
 }
 
+.load-more-wrapper {
+	display: flex;
+	justify-content: center;
+	margin-top: 1.5rem;
+}
+
+.load-more-btn {
+	border: none;
+	border-radius: 999px;
+	padding: 0.65rem 1.5rem;
+	font-size: 0.95rem;
+	font-weight: 700;
+	color: #ffffff;
+	background: linear-gradient(135deg, #667eea, #764ba2);
+	cursor: pointer;
+	transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.load-more-btn:hover {
+	opacity: 0.92;
+	transform: scale(1.02);
+}
+
+.load-more-btn:active {
+	transform: scale(0.98);
+}
+
 /* ===== Loading & Empty States ===== */
 .loading-container,
 .empty-state {

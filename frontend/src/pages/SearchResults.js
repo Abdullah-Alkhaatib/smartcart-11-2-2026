@@ -236,7 +236,7 @@ export default function SearchResults() {
                     {product.description?.length > 80 ? "..." : ""}
                   </p>
 
-                  {uniqueColorImages.length > 1 && (
+                  {uniqueColorImages.length > 0 && (
                     <div className="product-colors sr-colors">
                       <span className="colors-label sr-colors-label">
                         الألوان المتوفرة:

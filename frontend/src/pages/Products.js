@@ -410,7 +410,7 @@ export default function Products() {
                       </p>
 
                       {/* Colors Available */}
-                      {uniqueColorImages.length > 1 && (
+                      {uniqueColorImages.length > 0 && (
                         <div className="product-colors">
                           <span className="colors-label">
                             الألوان المتوفرة:

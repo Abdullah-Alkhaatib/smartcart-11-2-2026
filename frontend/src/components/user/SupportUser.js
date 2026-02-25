@@ -14,7 +14,7 @@ export default function SupportUser() {
 	const [userId, setUserId] = useState("");
 
 	const navigate = useNavigate();
-	const chatEndRef = useRef(null);
+	const messagesContainerRef = useRef(null);
 
 	const token = useMemo(() => localStorage.getItem("token"), []);
 
@@ -63,8 +63,11 @@ export default function SupportUser() {
 	}, [fetchMyMessages, fetchProfile, navigate]);
 
 	useEffect(() => {
-		if (chatEndRef.current) {
-			chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+		if (messagesContainerRef.current) {
+			messagesContainerRef.current.scrollTo({
+				top: messagesContainerRef.current.scrollHeight,
+				behavior: "smooth",
+			});
 		}
 	}, [messages]);
 
@@ -128,7 +131,7 @@ export default function SupportUser() {
 					</small>
 				</div>
 
-				<div className="support-user__messages">
+				<div className="support-user__messages" ref={messagesContainerRef}>
 					{loading ? (
 						<p className="support-user__state">جاري تحميل الرسائل...</p>
 					) : messages.length === 0 ? (
@@ -154,7 +157,6 @@ export default function SupportUser() {
 							</div>
 						))
 					)}
-					<div ref={chatEndRef} />
 				</div>
 
 				<form className="support-user__composer" onSubmit={handleSend}>
