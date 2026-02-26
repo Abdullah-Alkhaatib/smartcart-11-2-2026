@@ -31,6 +31,9 @@ export default function Footer() {
 							<li>
 								<Link to="/cart" onClick={() => window.scrollTo(0, 0)}>سلة المشتريات</Link>
 							</li>
+							<li>
+								<Link to="/orders" onClick={() => window.scrollTo(0, 0)}>طلباتي</Link>
+							</li>
 						</ul>
 					</div>
 

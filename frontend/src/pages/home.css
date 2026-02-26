@@ -364,6 +364,9 @@
 }
 
 .load-more-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
 	border: none;
 	border-radius: 999px;
 	padding: 0.65rem 1.5rem;

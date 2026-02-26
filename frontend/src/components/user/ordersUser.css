@@ -1,0 +1,231 @@
+.uord-root {
+	width: min(1100px, 94vw);
+	margin: 26px auto 48px;
+	color: #0f172a;
+}
+
+.uord-header {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	border-radius: 20px;
+	padding: 20px 22px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 14px;
+	flex-wrap: wrap;
+	box-shadow: 0 10px 28px rgba(102, 126, 234, 0.25);
+	margin-bottom: 14px;
+}
+
+.uord-header h2 {
+	margin: 0 0 6px;
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	font-size: 26px;
+	color: #ffffff;
+}
+
+.uord-header p {
+	margin: 0;
+	color: rgba(255, 255, 255, 0.9);
+}
+
+.uord-refresh-btn {
+	border: 1px solid rgba(255, 255, 255, 0.38);
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.14);
+	color: #ffffff;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 15px;
+	cursor: pointer;
+}
+
+.uord-refresh-btn:disabled {
+	opacity: 0.65;
+	cursor: not-allowed;
+}
+
+.uord-state {
+	margin: 22px 0;
+	text-align: center;
+	color: #64748b;
+	font-weight: 600;
+}
+
+.uord-state-small {
+	margin: 6px 0;
+	color: #64748b;
+	font-size: 13px;
+}
+
+.uord-list {
+	display: grid;
+	gap: 14px;
+}
+
+.uord-card {
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 18px;
+	box-shadow: 0 8px 26px rgba(15, 23, 42, 0.08);
+	padding: 16px;
+	text-align: right;
+}
+
+.uord-card-top {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 10px;
+}
+
+.uord-card-top h3 {
+	margin: 0 0 4px;
+	font-size: 18px;
+	color: #1e293b;
+}
+
+.uord-card-top p {
+	margin: 0;
+	font-size: 12px;
+	color: #64748b;
+}
+
+.uord-status {
+	border-radius: 999px;
+	border: 1px solid transparent;
+	padding: 6px 12px;
+	font-size: 12px;
+	font-weight: 700;
+	white-space: nowrap;
+}
+
+.uord-status.is-pending {
+	background: #fff7ed;
+	color: #c2410c;
+	border-color: #fdba74;
+}
+
+.uord-status.is-confirmed {
+	background: #eff6ff;
+	color: #1d4ed8;
+	border-color: #93c5fd;
+}
+
+.uord-status.is-shipped {
+	background: #f5f3ff;
+	color: #6d28d9;
+	border-color: #c4b5fd;
+}
+
+.uord-status.is-delivered {
+	background: #ecfdf5;
+	color: #047857;
+	border-color: #86efac;
+}
+
+.uord-status.is-cancelled {
+	background: #fef2f2;
+	color: #b91c1c;
+	border-color: #fca5a5;
+}
+
+.uord-meta {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+	gap: 8px 12px;
+	margin: 10px 0;
+	padding: 10px;
+	border-radius: 12px;
+	background: #f8fafc;
+}
+
+.uord-meta p {
+	margin: 0;
+	font-size: 13px;
+	color: #334155;
+}
+
+.uord-meta strong {
+	color: #0f172a;
+}
+
+.uord-items ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: grid;
+	gap: 8px;
+}
+
+.uord-items li {
+	border: 1px solid #dbeafe;
+	background: #f8fbff;
+	border-radius: 11px;
+	padding: 9px;
+	display: grid;
+	grid-template-columns: 2fr 1fr 1fr 1fr;
+	gap: 8px;
+	font-size: 13px;
+	color: #1e293b;
+}
+
+.uord-actions {
+	margin-top: 10px;
+	display: flex;
+	justify-content: flex-end;
+}
+
+.uord-cancel-btn {
+	border: none;
+	border-radius: 10px;
+	background: linear-gradient(135deg, #ef4444, #dc2626);
+	color: #fff;
+	padding: 8px 12px;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	cursor: pointer;
+	box-shadow: 0 6px 14px rgba(239, 68, 68, 0.28);
+}
+
+.uord-cancel-btn:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.uord-pagination {
+	margin-top: 14px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+}
+
+.uord-pagination button {
+	border: 1px solid #cbd5e1;
+	background: #ffffff;
+	color: #1e293b;
+	border-radius: 10px;
+	padding: 8px 12px;
+	cursor: pointer;
+}
+
+.uord-pagination button:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
+.uord-pagination span {
+	color: #475569;
+}
+
+@media (max-width: 840px) {
+	.uord-items li {
+		grid-template-columns: 1fr;
+	}
+}

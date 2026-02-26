@@ -20,12 +20,13 @@ import API_URL from "../config/api";
 import { getColorChipStyle } from "../utils/colorUtils";
 
 export default function Products() {
+  const PRODUCTS_PER_BATCH = 3;
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedColors, setSelectedColors] = useState({});
   const [checkedCategories, setCheckedCategories] = useState([]);
   const [selectedPriceRange, setSelectedPriceRange] = useState(null);
-  const [visibleCount, setVisibleCount] = useState(12);
+  const [visibleCount, setVisibleCount] = useState(PRODUCTS_PER_BATCH);
   const [showFilters, setShowFilters] = useState(false);
   const { selectedCategory } = useProductContext();
   const navigate = useNavigate();
@@ -167,6 +168,10 @@ export default function Products() {
     getProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    setVisibleCount(PRODUCTS_PER_BATCH);
+  }, [products, PRODUCTS_PER_BATCH]);
 
   // React to selected category from Navbar
   useEffect(() => {
@@ -482,22 +487,12 @@ export default function Products() {
             <div className="load-more-container">
               <button
                 className="load-more-btn"
-                onClick={() => setVisibleCount((prev) => prev + 12)}
+                onClick={() =>
+                  setVisibleCount((prev) => prev + PRODUCTS_PER_BATCH)
+                }
               >
                 <ChevronDown size={20} />
-                <span>عرض المزيد من المنتجات</span>
-              </button>
-            </div>
-          )}
-
-          {/* Show Less Button */}
-          {visibleCount > 12 && visibleCount >= products.length && (
-            <div className="load-more-container">
-              <button
-                className="show-less-btn"
-                onClick={() => setVisibleCount(12)}
-              >
-                <span>عرض أقل</span>
+                <span>تحميل المزيد</span>
               </button>
             </div>
           )}

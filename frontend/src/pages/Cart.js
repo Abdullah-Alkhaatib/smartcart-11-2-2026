@@ -1,4 +1,7 @@
 import { useCart } from "../components/context/CartContext";
+import { useState } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
 import {
   ShoppingCart,
   Trash2,
@@ -12,8 +15,16 @@ import "./cart.css";
 import API_URL from "../config/api";
 
 export default function Cart() {
-  const { cartItems, loading, removeFromCart, updateCartQuantity } = useCart();
+  const {
+    cartItems,
+    loading,
+    removeFromCart,
+    updateCartQuantity,
+    fetchCartItems,
+  } = useCart();
   const navigate = useNavigate();
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("COD");
 
   const isMongoObjectId = (value) => /^[a-f\d]{24}$/i.test(String(value || ""));
 
@@ -64,6 +75,67 @@ export default function Cart() {
   const handleRemove = async (productId, color) => {
     if (window.confirm("هل أنت متأكد من حذف هذا المنتج من السلة؟")) {
       await removeFromCart(productId, color);
+    }
+  };
+
+  const handleCheckout = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      toast.error("يرجى تسجيل الدخول أولاً");
+      navigate("/login");
+      return;
+    }
+
+    if (!cartItems || cartItems.length === 0) {
+      toast.error("السلة فارغة");
+      return;
+    }
+
+    const fullName = window.prompt("الاسم الكامل للمستلم:", "");
+    if (!fullName || !fullName.trim()) return;
+
+    const phone = window.prompt("رقم الهاتف:", "");
+    if (!phone || !phone.trim()) return;
+    const normalizedPhone = phone.trim();
+    if (!/^\d+$/.test(normalizedPhone)) {
+      toast.error("رقم الهاتف يجب أن يحتوي أرقام فقط");
+      return;
+    }
+
+    const city = window.prompt("المدينة:", "");
+    if (!city || !city.trim()) return;
+
+    const address = window.prompt("العنوان التفصيلي:", "");
+    if (!address || !address.trim()) return;
+
+    try {
+      setCheckoutLoading(true);
+
+      await axios.post(
+        `${API_URL}/api/orders/create-order`,
+        {
+          shippingAddress: {
+            fullName: fullName.trim(),
+            phone: normalizedPhone,
+            city: city.trim(),
+            address: address.trim(),
+          },
+          paymentMethod,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      await fetchCartItems();
+      toast.success("تم إنشاء الطلب بنجاح");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "فشل إنشاء الطلب");
+    } finally {
+      setCheckoutLoading(false);
     }
   };
 
@@ -271,8 +343,35 @@ export default function Cart() {
               <span>{formatPrice(calculateTotal())}</span>
             </div>
 
-            <button className="btn-checkout">
-              <span>إتمام الشراء</span>
+            <div className="payment-method-section">
+              <label className="payment-method-label">طريقة الدفع</label>
+              <div className="payment-method-options">
+                <button
+                  type="button"
+                  className={`payment-option ${paymentMethod === "COD" ? "is-active" : ""}`}
+                  onClick={() => setPaymentMethod("COD")}
+                >
+                  الدفع عند الاستلام
+                </button>
+
+                <button
+                  type="button"
+                  className={`payment-option ${paymentMethod === "Card" ? "is-active" : ""}`}
+                  onClick={() => setPaymentMethod("Card")}
+                >
+                  بطاقة
+                </button>
+              </div>
+            </div>
+
+            <button
+              className="btn-checkout"
+              onClick={handleCheckout}
+              disabled={checkoutLoading}
+            >
+              <span>
+                {checkoutLoading ? "جارٍ إنشاء الطلب..." : "إتمام الشراء"}
+              </span>
               <ArrowRight size={20} />
             </button>
 

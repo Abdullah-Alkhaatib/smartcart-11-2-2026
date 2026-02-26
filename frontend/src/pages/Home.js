@@ -2,17 +2,18 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { ShoppingCart, Star, TrendingUp, Zap } from "lucide-react";
+import { ShoppingCart, Star, TrendingUp, Zap, ChevronDown } from "lucide-react";
 import { useCart } from "../components/context/CartContext";
 import { useProductContext } from "../components/context/ProductContext";
 import API_URL from "../config/api";
 import "./home.css";
 
 export default function Home() {
+  const PRODUCTS_PER_BATCH = 4;
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [visibleCount, setVisibleCount] = useState(4);
+  const [visibleCount, setVisibleCount] = useState(PRODUCTS_PER_BATCH);
   const { addToCart } = useCart();
   const { setSelectedCategory } = useProductContext();
   const navigate = useNavigate();
@@ -21,6 +22,10 @@ export default function Home() {
     fetchProducts();
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    setVisibleCount(PRODUCTS_PER_BATCH);
+  }, [products, PRODUCTS_PER_BATCH]);
 
   async function fetchProducts() {
     try {
@@ -236,9 +241,10 @@ export default function Home() {
                 <button
                   type="button"
                   className="load-more-btn"
-                  onClick={() => setVisibleCount((prev) => prev + 4)}
+                  onClick={() => setVisibleCount((prev) => prev + PRODUCTS_PER_BATCH)}
                 >
-                  Load more
+                  <ChevronDown size={20} />
+                  <span>تحميل المزيد</span>
                 </button>
               </div>
             )}

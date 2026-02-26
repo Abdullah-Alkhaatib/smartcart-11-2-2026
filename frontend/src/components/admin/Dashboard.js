@@ -29,7 +29,9 @@ import ContactMailIcon from "@mui/icons-material/ContactMail";
 import ContactUsAdmin from "./ContactUsAdmin";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import SupportDashboard from "./SupportDashboard";
-//
+// order icon 
+import OrdersIcon from "@mui/icons-material/ShoppingCart";
+import OrdersDashboard from "./OrdersDashboard";
 
 const NAVIGATION = [
   {
@@ -77,6 +79,11 @@ const NAVIGATION = [
     icon: <SupportAgentIcon />,
   },
   {
+    segment: "orders",
+    title: "الطلبات",
+    icon: <OrdersIcon />,
+  },
+  {
     segment: "logout",
     title: "تسجيل الخروج",
     icon: <LogoutIcon />,
@@ -121,6 +128,7 @@ function DemoPageContent({ pathname }) {
       {pathname === "/archived-products" ? <ArchivedProducts /> : null}
       {pathname === "/contactUs" ? <ContactUsAdmin /> : null}
       {pathname === "/support" ? <SupportDashboard /> : null}
+      {pathname === "/orders" ? <OrdersDashboard /> : null}
       {pathname === "/logout" ? handleLogout() : null}
     </Box>
   );
