@@ -40,6 +40,10 @@ app.use('/api/contact', contactUsRoute);
 app.use('/api/support', supportRoute);
 app.use('/api/orders', orderRoute);
 
+app.get("/", (req, res) => {
+  res.send("SmartCart API is running 🚀");
+});
+
 // start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
