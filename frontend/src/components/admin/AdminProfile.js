@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import "../admin/adminProfile.css";
 import API_URL from "../../config/api";
@@ -17,7 +17,7 @@ const AdminProfile = () => {
 
   const token = localStorage.getItem("token");
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     setLoading(true);
     setError("");
 
@@ -46,13 +46,14 @@ const AdminProfile = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchProfile();
-  }, []);
+  }, [fetchProfile]);
 
-  const handleChange = (event) => { // لتحديث حالة النموذج عند تغيير الحقول
+  const handleChange = (event) => {
+    // لتحديث حالة النموذج عند تغيير الحقول
     const { name, value } = event.target;
     setForm((prev) => ({ ...prev, [name]: value })); // تحديث الحقل المحدد في النموذج
   };
@@ -69,7 +70,7 @@ const AdminProfile = () => {
     if (!profile?._id) return; // تأكد من وجود بيانات الملف الشخصي قبل محاولة التحديث
 
     const hasChanges =
-      form.username !== (profile.username || "") || 
+      form.username !== (profile.username || "") ||
       form.email !== (profile.email || "") ||
       Boolean(imageFile);
 
@@ -84,7 +85,8 @@ const AdminProfile = () => {
       payload.append("username", form.username);
       payload.append("email", form.email);
 
-      if (imageFile) { // إذا تم اختيار صورة جديدة، نضيفها إلى الـ FormData
+      if (imageFile) {
+        // إذا تم اختيار صورة جديدة، نضيفها إلى الـ FormData
         payload.append("profilePicture", imageFile);
       }
 
@@ -118,9 +120,10 @@ const AdminProfile = () => {
     ? new Date(profile.createdAt).toLocaleDateString("ar-EG")
     : "--";
 
-  const resolveImageUrl = (value) => { 
+  const resolveImageUrl = (value) => {
     if (!value) return ""; // إذا القيمة فارغة، نرجع سلسلة فارغة عشان ما نحاول نعرض صورة
-    if (value.startsWith("http://") || value.startsWith("https://")) // إذا كانت القيمة URL كامل، نرجعها كما هي
+    if (value.startsWith("http://") || value.startsWith("https://"))
+      // إذا كانت القيمة URL كامل، نرجعها كما هي
       return value;
     return `${API_URL}${value}`;
   };

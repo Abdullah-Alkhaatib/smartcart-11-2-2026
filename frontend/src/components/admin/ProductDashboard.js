@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import {
@@ -40,7 +40,7 @@ const ProductDashboard = () => {
     return { Authorization: `Bearer ${token}` };
   }, [token]);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setRefreshing(true);
     try {
       const response = await axios.get(
@@ -57,9 +57,9 @@ const ProductDashboard = () => {
       setRefreshing(false);
       setLoading(false);
     }
-  };
+  }, [headers]);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     if (!token) return;
     try {
       const response = await axios.get(
@@ -73,12 +73,12 @@ const ProductDashboard = () => {
       console.error(error);
       toast.error("تعذر تحميل الفئات");
     }
-  };
+  }, [token, headers]);
 
   useEffect(() => {
     fetchProducts();
     fetchCategories();
-  }, []);
+  }, [fetchProducts, fetchCategories]);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;

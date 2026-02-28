@@ -1,6 +1,6 @@
 import "../admin/dashboardUsers.css";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Trash2, Users, RefreshCw } from "lucide-react";
 import toast from "react-hot-toast";
 import CreateUsers from "./CreateUsers";
@@ -13,7 +13,7 @@ const DashboardUsers = () => {
 
   const token = localStorage.getItem("token");
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     if (!token) {
       setUsers([]);
       setLoading(false);
@@ -35,11 +35,11 @@ const DashboardUsers = () => {
       setRefreshing(false);
       setLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
   const handleDelete = async (id) => {
     if (!token) return;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { Archive, RotateCcw, Trash2, Tags, RefreshCw } from "lucide-react";
@@ -13,11 +13,14 @@ const ArchivedProducts = () => {
 
   const token = localStorage.getItem("token");
 
-  const headers = {
-    Authorization: `Bearer ${token}`,
-  };
+  const headers = useMemo(
+    () => ({
+      Authorization: `Bearer ${token}`,
+    }),
+    [token],
+  );
 
-  const fetchArchivedProducts = async () => {
+  const fetchArchivedProducts = useCallback(async () => {
     setRefreshing(true);
     try {
       const response = await axios.get(
@@ -32,7 +35,7 @@ const ArchivedProducts = () => {
       setRefreshing(false);
       setLoading(false);
     }
-  };
+  }, [headers]);
 
   useEffect(() => {
     if (!token) {
@@ -41,7 +44,7 @@ const ArchivedProducts = () => {
       return;
     }
     fetchArchivedProducts();
-  }, []);
+  }, [token, fetchArchivedProducts]);
 
   const resolveImageUrl = (imageObj) => {
     let url = imageObj?.url || imageObj || "";
