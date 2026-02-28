@@ -26,7 +26,6 @@ export const CartProvider = ({ children }) => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log("Cart Response:", res.data);
       setCartItems(res.data?.items || []);
     } catch (error) {
       console.error("Error fetching cart items:", error);
@@ -60,7 +59,6 @@ export const CartProvider = ({ children }) => {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
-      console.log("Add to Cart Response:", res.data);
       setCartItems(res.data?.items || []);
       toast.success("Item added to cart");
       return res;

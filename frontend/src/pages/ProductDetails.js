@@ -29,8 +29,7 @@ export default function ProductDetails() {
         `${API_URL}/api/products/get-single-product/${id}`,
       );
       setProduct(data);
-    } catch (error) {
-      console.log(error);
+    } catch {
       toast.error("فشل تحميل تفاصيل المنتج");
       navigate("/");
     } finally {

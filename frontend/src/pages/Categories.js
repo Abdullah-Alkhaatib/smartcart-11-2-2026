@@ -24,8 +24,7 @@ export default function Categories() {
 			);
 
 			setCategories(Array.isArray(data) ? data : []);
-		} catch (fetchError) {
-			console.log("Categories fetch error:", fetchError);
+		} catch {
 			setError("تعذر تحميل الفئات، حاول مرة أخرى.");
 			toast.error("فشل تحميل الفئات");
 		} finally {

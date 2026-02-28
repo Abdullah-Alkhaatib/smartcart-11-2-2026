@@ -28,9 +28,6 @@ export default function Cart() {
 
   const isMongoObjectId = (value) => /^[a-f\d]{24}$/i.test(String(value || ""));
 
-  // Debug: Log cart items to console
-  console.log("Cart Items:", cartItems);
-
   // Format price with KD currency
   const formatPrice = (price) => {
     return `${price.toFixed(2)} د.ك`;
@@ -193,9 +190,7 @@ export default function Cart() {
 
           <div className="cart-items-list">
             {cartItems.map((item, index) => {
-              console.log("Cart Item:", item);
               const product = item.product;
-              console.log("Product:", product);
               if (!product) return null;
 
               // Find the image that matches the selected color

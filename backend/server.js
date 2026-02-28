@@ -1,6 +1,8 @@
 const express = require('express');
 const connectToDB = require('./config/connectToDB.js');
 const cors = require('cors');
+const helmet = require("helmet"); // إضافة Helmet لتحسين الأمان
+const hpp = require("hpp");
 
 require('dotenv').config();
 
@@ -14,6 +16,8 @@ app.use(cors ({
 }));
 
 app.use(express.json());
+app.use(helmet());
+app.use(hpp());
 
 app.use('/images', express.static(__dirname + '/public/images')); // عشان نقدر نوصل للصور من خلال المسار /images
 

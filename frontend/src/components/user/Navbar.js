@@ -42,10 +42,6 @@ export default function Navbar() {
 
       setUser(data);
     } catch (error) {
-      console.log(
-        "Error loading user profile:",
-        error.response?.data || error.message,
-      );
       const status = error.response?.status;
       if (status === 401 || status === 403) {
         localStorage.removeItem("token");
@@ -63,8 +59,7 @@ export default function Navbar() {
         `${API_URL}/api/categories/get-all-categories`,
       );
       setCategories(data);
-    } catch (error) {
-      console.log(error);
+    } catch {
       toast.error("فشل تحميل الأقسام");
     }
   }
@@ -116,9 +111,6 @@ export default function Navbar() {
         `${API_URL}/api/products/search?query=${encodeURIComponent(query)}`,
       );
 
-      console.log("Navbar - Search results:", data);
-      console.log("Navbar - Query:", query);
-
       // التوجه إلى صفحة نتائج البحث مع النتائج
       navigate("/search-results", {
         state: {
@@ -128,8 +120,7 @@ export default function Navbar() {
       });
       
       setSearchInput("");
-    } catch (error) {
-      console.log("Navbar - Search error:", error);
+    } catch {
       toast.error("فشل تحميل نتائج البحث");
     }
   }

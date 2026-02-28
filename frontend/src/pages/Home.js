@@ -33,8 +33,7 @@ export default function Home() {
         `${API_URL}/api/products/get-all-products`,
       );
       setProducts(data);
-    } catch (error) {
-      console.log(error);
+    } catch {
       toast.error("فشل تحميل المنتجات");
     } finally {
       setLoading(false);
@@ -47,9 +46,7 @@ export default function Home() {
         `${API_URL}/api/categories/get-all-categories`,
       );
       setCategories(data.slice(0, 6));
-    } catch (error) {
-      console.log(error);
-    }
+    } catch {}
   }
 
   function handleAddToCart(product) {
