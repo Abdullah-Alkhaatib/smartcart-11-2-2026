@@ -9,6 +9,7 @@ import API_URL from "../config/api";
 import { getColorChipStyle } from "../utils/colorUtils";
 
 export default function SearchResults() {
+  const PRODUCT_DESCRIPTION_LIMIT = 80;
   const location = useLocation();
   const navigate = useNavigate();
   const { addToCart } = useCart();
@@ -38,6 +39,12 @@ export default function SearchResults() {
       return `${API_URL}${rawUrl}`;
     }
     return `${API_URL}/images/${rawUrl}`;
+  };
+
+  const truncateDescription = (text, limit) => {
+    if (!text) return "";
+    if (text.length <= limit) return text;
+    return `${text.substring(0, limit)}...`;
   };
 
   const getUniqueColorImages = (images = []) => {
@@ -176,7 +183,7 @@ export default function SearchResults() {
         <div className="products-grid sr-grid">
           {searchResults.map((product, index) => {
             const shortDescription = product.description
-              ? product.description.substring(0, 80)
+              ? truncateDescription(product.description, PRODUCT_DESCRIPTION_LIMIT)
               : "لا يوجد وصف متاح";
             const totalStock = getTotalStock(product);
             const selectedImage = getSelectedImage(product);
@@ -251,7 +258,6 @@ export default function SearchResults() {
                   </h3>
                   <p className="product-description sr-description">
                     {shortDescription}
-                    {product.description?.length > 80 ? "..." : ""}
                   </p>
 
                   {uniqueColorImages.length > 0 && (

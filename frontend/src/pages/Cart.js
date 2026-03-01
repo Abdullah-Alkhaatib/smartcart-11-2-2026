@@ -15,6 +15,7 @@ import "./cart.css";
 import API_URL from "../config/api";
 
 export default function Cart() {
+  const PRODUCT_DESCRIPTION_LIMIT = 100;
   const {
     cartItems,
     loading,
@@ -44,6 +45,12 @@ export default function Cart() {
       return `${API_URL}${rawUrl}`;
     }
     return `${API_URL}/images/${rawUrl}`;
+  };
+
+  const truncateDescription = (text, limit) => {
+    if (!text) return "";
+    if (text.length <= limit) return text;
+    return `${text.substring(0, limit)}...`;
   };
 
   // Format price with KD currency
@@ -255,7 +262,10 @@ export default function Cart() {
                       {product.name}
                     </h3>
                     <p className="cart-item-description">
-                      {product.description?.substring(0, 100)}
+                      {truncateDescription(
+                        product.description,
+                        PRODUCT_DESCRIPTION_LIMIT,
+                      )}
                     </p>
                     <div className="cart-item-meta">
                       <span

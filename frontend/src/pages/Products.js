@@ -21,6 +21,7 @@ import { getColorChipStyle } from "../utils/colorUtils";
 export default function Products() {
   const PRODUCTS_PER_BATCH = 3;
   const LOW_STOCK_THRESHOLD = 3;
+  const PRODUCT_DESCRIPTION_LIMIT = 80;
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedColors, setSelectedColors] = useState({});
@@ -53,6 +54,12 @@ export default function Products() {
       return `${API_URL}${rawUrl}`;
     }
     return `${API_URL}/images/${rawUrl}`;
+  };
+
+  const truncateDescription = (text, limit) => {
+    if (!text) return "";
+    if (text.length <= limit) return text;
+    return `${text.substring(0, limit)}...`;
   };
 
   const getUniqueColorImages = (images = []) => {
@@ -430,8 +437,10 @@ export default function Products() {
                       </div>
                       <h3 className="product-title">{product.name}</h3>
                       <p className="product-description">
-                        {product.description?.substring(0, 80)}
-                        {product.description?.length > 80 ? "..." : ""}
+                        {truncateDescription(
+                          product.description,
+                          PRODUCT_DESCRIPTION_LIMIT,
+                        )}
                       </p>
 
                       {/* Colors Available */}

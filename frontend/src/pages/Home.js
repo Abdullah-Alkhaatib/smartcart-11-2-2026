@@ -11,6 +11,7 @@ import "./home.css";
 export default function Home() {
   const PRODUCTS_PER_BATCH = 4;
   const LOW_STOCK_THRESHOLD = 3;
+  const PRODUCT_DESCRIPTION_LIMIT = 60;
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -104,6 +105,12 @@ export default function Home() {
       return `${API_URL}${rawUrl}`;
     }
     return `${API_URL}/images/${rawUrl}`;
+  }
+
+  function truncateDescription(text, limit) {
+    if (!text) return "";
+    if (text.length <= limit) return text;
+    return `${text.substring(0, limit)}...`;
   }
 
   return (
@@ -222,7 +229,10 @@ export default function Home() {
                     <div className="product-info">
                       <h3 className="product-title">{product.name}</h3>
                       <p className="product-description">
-                        {product.description?.substring(0, 60)}
+                        {truncateDescription(
+                          product.description,
+                          PRODUCT_DESCRIPTION_LIMIT,
+                        )}
                       </p>
 
                       <div className="product-footer">
