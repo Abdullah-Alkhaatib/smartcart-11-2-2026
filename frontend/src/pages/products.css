@@ -440,7 +440,8 @@
 }
 
 .out-of-stock-badge {
-  background: rgba(71, 85, 105, 0.9);
+  /* background: rgba(71, 85, 105, 0.9); */
+  background: none;
   color: white;
 }
 
