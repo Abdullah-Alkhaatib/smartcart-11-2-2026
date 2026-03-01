@@ -93,19 +93,11 @@ const updateUser = async (req, res) => {
     if (req.file) {
       // حذف الصورة القديمة من مجلد images (إذا كانت محلية)
       if (user.profilePicture && user.profilePicture.startsWith("/images/")) {
-        const oldFileName = path.basename(user.profilePicture);
-        const oldImagePath = path.join(
-          __dirname,
-          "..",
-          "public",
-          "images",
-          oldFileName,
-        );
-
+        const oldImagePath = path.join(__dirname, "..", "public", user.profilePicture);
         fs.unlink(oldImagePath, (error) => {
-          if (error && error.code !== "ENOENT") {
-            console.error("Failed to delete old profile picture:", error);
-          }
+            if (error) {
+                console.error("Failed to delete old profile picture:", error);
+            }
         });
       }
 

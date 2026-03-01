@@ -75,7 +75,7 @@ export const CartProvider = ({ children }) => {
   const removeFromCart = async (productId, color) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("Please login first");
+      toast.error("يرجى تسجيل الدخول أولاً");
       return;
     }
     setLoading(true);
@@ -85,10 +85,10 @@ export const CartProvider = ({ children }) => {
         data: { productId, color },
       });
       setCartItems(res.data?.items || []);
-      toast.success("Item removed from cart");
+      toast.success("تم حذف العنصر من سلة التسوق");
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Failed to remove item from cart",
+        error.response?.data?.message || "فشل حذف العنصر من سلة التسوق",
       );
     } finally {
       setLoading(false);
@@ -99,7 +99,7 @@ export const CartProvider = ({ children }) => {
   const updateCartQuantity = async (productId, color, quantity) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("Please login first");
+      toast.error("يرجى تسجيل الدخول أولاً");
       return;
     }
     setLoading(true);
@@ -112,10 +112,10 @@ export const CartProvider = ({ children }) => {
       );
 
       setCartItems(res.data?.items || []);
-      toast.success("Item quantity updated");
+      toast.success("تم تحديث كمية العنصر في سلة التسوق");
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Failed to update item quantity",
+        error.response?.data?.message || "فشل تحديث كمية العنصر في سلة التسوق",
       );
     } finally {
       setLoading(false);

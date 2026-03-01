@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import "./profileUser.css";
 import API_URL from "../../config/api";
-import { resolveImageUrl } from "../../utils/imageUrl";
 
 export default function ProfileUser() {
   const [user, setUser] = useState(null);
@@ -228,7 +227,11 @@ export default function ProfileUser() {
                     />
                   ) : user && user.profilePicture ? (
                     <img
-                      src={resolveImageUrl(user.profilePicture)}
+                      src={
+                        user.profilePicture.startsWith("/images/")
+                          ? `${API_URL}${user.profilePicture}`
+                          : user.profilePicture
+                      }
                       alt="profile"
                       className="profile-preview"
                     />
