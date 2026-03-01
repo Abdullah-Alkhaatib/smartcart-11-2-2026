@@ -8,6 +8,7 @@ import { useProductContext } from "../context/ProductContext";
 import { useCart } from "../context/CartContext";
 import API_URL from "../../config/api";
 import { useUserRole } from "../UserRole";
+import { resolveImageUrl } from "../../utils/imageUrl";
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
@@ -125,9 +126,7 @@ export default function Navbar() {
     }
   }
 
-  const userImageSrc = user?.profilePicture?.startsWith("/images/")
-    ? `${API_URL}${user.profilePicture}`
-    : user?.profilePicture;
+  const userImageSrc = resolveImageUrl(user?.profilePicture);
 
   return (
     <nav className="navbar" dir="rtl">
