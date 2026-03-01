@@ -488,7 +488,7 @@ export default function Products() {
                             className="view-details-btn"
                             onClick={() => navigate(`/product/${product._id}`)}
                           >
-                            <Eye size={17} />
+                            {/* <Eye size={17} /> */}
                             <span>التفاصيل</span>
                           </button>
 
