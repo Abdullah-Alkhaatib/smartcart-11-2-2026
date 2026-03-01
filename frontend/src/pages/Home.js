@@ -10,6 +10,7 @@ import "./home.css";
 
 export default function Home() {
   const PRODUCTS_PER_BATCH = 4;
+  const LOW_STOCK_THRESHOLD = 3;
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,17 +51,31 @@ export default function Home() {
   }
 
   function handleAddToCart(product) {
-    // اختيار أول لون متاح من المنتج
-    const firstAvailableColor = product.images && product.images[0]?.color;
+    const firstAvailableImage = product.images?.find(
+      (image) => (image?.stock || 0) > 0,
+    );
+    const fallbackImage = product.images?.[0];
+    const selectedImage = firstAvailableImage || fallbackImage;
+    const firstAvailableColor = selectedImage?.color;
 
     if (!firstAvailableColor) {
       toast.error("لا توجد ألوان متاحة لهذا المنتج");
       return;
     }
 
+    if ((selectedImage?.stock || 0) <= 0) {
+      toast.error("المنتج غير متوفر");
+      return;
+    }
+
     // استدعاء addToCart بالـ parameters الصحيحة: productId, color, quantity
     addToCart(product._id, firstAvailableColor, 1);
   }
+
+  const getTotalStock = (product) => {
+    if (!product.images || product.images.length === 0) return 0;
+    return product.images.reduce((sum, image) => sum + (image?.stock || 0), 0);
+  };
 
   const displayedProducts = products.slice(0, visibleCount);
   const hasMoreProducts = products.length > visibleCount;
@@ -169,7 +184,11 @@ export default function Home() {
         ) : displayedProducts.length > 0 ? (
           <>
             <div className="products-grid">
-              {displayedProducts.map((product) => (
+              {displayedProducts.map((product) => {
+                const totalStock = getTotalStock(product);
+                const hasDiscount = product.discount > 0;
+
+                return (
                 <div key={product._id} className="product-card">
                   <div className="product-image-wrapper">
                     <img
@@ -181,8 +200,14 @@ export default function Home() {
                       alt={product.name}
                       className="product-image"
                     />
-                    {product.discount > 0 && (
-                      <span className="product-badge">-{product.discount}%</span>
+                    {hasDiscount && (
+                      <span className="product-badge discount-badge">-{product.discount}%</span>
+                    )}
+                    {totalStock === 0 && (
+                      <span className="product-badge out-of-stock-badge">غير متوفر</span>
+                    )}
+                    {totalStock > 0 && totalStock <= LOW_STOCK_THRESHOLD && !hasDiscount && (
+                      <span className="product-badge low-stock-badge">آخر {totalStock} قطع</span>
                     )}
                   </div>
 
@@ -221,16 +246,17 @@ export default function Home() {
 
                       <button
                         onClick={() => handleAddToCart(product)}
-                        className="add-to-cart-btn"
+                        className={`add-to-cart-btn ${totalStock === 0 ? "disabled" : ""}`}
+                        disabled={totalStock === 0}
                         aria-label={`إضافة ${product.name} إلى السلة`}
                       >
                         <ShoppingCart size={16} />
-                        <span>أضف للسلة</span>
+                        <span>{totalStock === 0 ? "غير متوفر" : "أضف للسلة"}</span>
                       </button>
                     </div>
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
 
             {hasMoreProducts && (

@@ -226,13 +226,26 @@
 	right: 0.75rem;
 	padding: 0.5rem 1.25rem;
 	border-radius: 0 0 12px 12px;
-	background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 	color: #ffffff;
 	font-size: 0.875rem;
 	font-weight: 700;
-	box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
 	z-index: 10;
 	letter-spacing: 0.5px;
+}
+
+.discount-badge {
+	background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+	box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.out-of-stock-badge {
+	background: rgba(71, 85, 105, 0.92);
+	box-shadow: 0 4px 12px rgba(71, 85, 105, 0.35);
+}
+
+.low-stock-badge {
+	background: linear-gradient(135deg, #f59e0b, #d97706);
+	box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35);
 }
 
 .product-info {
@@ -350,6 +363,12 @@
 	background: linear-gradient(135deg, #5568d3, #6941a0);
 	box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 	transform: scale(1.03);
+}
+
+.add-to-cart-btn.disabled {
+	background: #cbd5e1;
+	box-shadow: none;
+	cursor: not-allowed;
 }
 
 .add-to-cart-btn:active,

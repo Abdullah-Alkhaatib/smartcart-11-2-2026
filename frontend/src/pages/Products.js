@@ -21,6 +21,7 @@ import { getColorChipStyle } from "../utils/colorUtils";
 
 export default function Products() {
   const PRODUCTS_PER_BATCH = 3;
+  const LOW_STOCK_THRESHOLD = 3;
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedColors, setSelectedColors] = useState({});
@@ -360,7 +361,7 @@ export default function Products() {
                         غير متوفر
                       </div>
                     )}
-                    {totalStock > 0 && totalStock <= 5 && !hasDiscount && (
+                    {totalStock > 0 && totalStock <= LOW_STOCK_THRESHOLD && !hasDiscount && (
                       <div className="product-badge low-stock-badge">
                         آخر {totalStock} قطع
                       </div>
