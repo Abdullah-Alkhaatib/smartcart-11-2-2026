@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import {
@@ -22,6 +22,7 @@ const initialForm = {
 };
 
 const ProductDashboard = () => {
+  const rootRef = useRef(null);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -262,6 +263,11 @@ const ProductDashboard = () => {
     setImageDetails(existingDetails);
     setExistingImagesCount(existingDetails.length);
     setShowForm(true);
+
+    requestAnimationFrame(() => {
+      rootRef.current?.scrollIntoView({ behavior: "auto", block: "start" });
+      window.scrollTo({ top: 0, behavior: "auto" });
+    });
   };
 
   const handleDelete = async (id) => {
@@ -320,7 +326,7 @@ const ProductDashboard = () => {
   };
 
   return (
-    <section className="pdb-root">
+    <section className="pdb-root" ref={rootRef}>
       <header className="pdb-header">
         <div>
           <h2>
