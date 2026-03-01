@@ -7,6 +7,9 @@ const {
   getSingleCategory,
   updateCategory,
   deleteCategory,
+  getArchivedCategories,
+  restoreCategory,
+  forceDeleteCategory,
   getAllCategoriesAdmin,
   toggleCategoryStatus
 } = require("../controller/categoryController.js");
@@ -37,6 +40,20 @@ router.put(
 
 // DELETE /api/categories/delete-category/:id - Delete category (Soft delete - Admin only)
 router.delete("/delete-category/:id", validObjectId, verifyAdmin, deleteCategory);
+
+// GET /api/categories/get-archived-categories - Get archived categories (Admin only)
+router.get("/get-archived-categories", verifyAdmin, getArchivedCategories);
+
+// PUT /api/categories/restore-category/:id - Restore archived category (Admin only)
+router.put("/restore-category/:id", validObjectId, verifyAdmin, restoreCategory);
+
+// DELETE /api/categories/delete-force-category/:id - Permanently delete category (Admin only)
+router.delete(
+  "/delete-force-category/:id",
+  validObjectId,
+  verifyAdmin,
+  forceDeleteCategory,
+);
 
 // GET /api/categories/get-all-categories-admin - Get all categories (Admin only)
 router.get("/get-all-categories-admin", verifyAdmin, getAllCategoriesAdmin);

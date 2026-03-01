@@ -140,32 +140,58 @@ const deleteCategory = async (req, res) => {
   }
 };
 
-// force delete category (hard delete)
-// const forceDeleteCategory = async (req, res) => {
-//   try {
-//     const { id } = req.params;
+const getArchivedCategories = async (req, res) => {
+  try {
+    const categories = await Category.find({ isActive: false }).sort({
+      createdAt: -1,
+    });
+    res.status(200).json(categories);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to get archived categories" });
+  }
+};
 
-//     const category = await Category.findByIdAndDelete(id);
-//     if (!category) {
-//       return res.status(404).json({ message: "Category not found" });
-//     }
+const restoreCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const category = await Category.findOne({ _id: id, isActive: false });
 
-//     // Delete image from file system if it exists
-//     if (category.image && category.image.startsWith("/images/")) {
-//       const imagePath = path.join(__dirname, "..", "public", category.image);
-//       fs.unlink(imagePath, (error) => {
-//         if (error) {
-//           console.error("Failed to delete category image:", error);
-//         }
-//       });
-//     }
+    if (!category) {
+      return res.status(404).json({ message: "Category not found" });
+    }
 
-//     res.status(200).json({ message: "Category permanently deleted" });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: "Failed to force delete category" });
-//   }
-// };
+    category.isActive = true;
+    await category.save();
+
+    res.status(200).json({ message: "Category restored successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to restore category" });
+  }
+};
+
+const forceDeleteCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const category = await Category.findById(id);
+    if (!category) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+
+    if (category.image) {
+      await deleteImageByUrl(category.image).catch(() => {});
+    }
+
+    await Category.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "Category permanently deleted" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to force delete category" });
+  }
+};
 
 
 const getAllCategoriesAdmin = async (req, res) => {
@@ -205,7 +231,9 @@ module.exports = {
   getSingleCategory,
   updateCategory,
   deleteCategory,
-//   forceDeleteCategory,
+  getArchivedCategories,
+  restoreCategory,
+  forceDeleteCategory,
   getAllCategoriesAdmin,
   toggleCategoryStatus,
 };

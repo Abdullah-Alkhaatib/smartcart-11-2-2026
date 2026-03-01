@@ -18,6 +18,7 @@ import ProductionQuantityLimitsIcon from "@mui/icons-material/ProductionQuantity
 import ProductDashboard from "./ProductDashboard";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import ArchivedProducts from "./ArchivedProducts";
+import ArchivedCategories from "./ArchivedCategories";
 // import ProductDashboard from './ProductDashboard';
 // import MessageIcon from '@mui/icons-material/Message';
 // import ContentDashboard from './ContentDashboard';
@@ -55,8 +56,13 @@ const NAVIGATION = [
   },
   {
     segment: "categories",
-    title: "الأقسام",
+    title: "الفئات",
     icon: <CategoryIcon />,
+  },
+  {
+    segment: "archived-categories",
+    title: "الفئات المحذوفة",
+    icon: <ArchiveIcon />,
   },
   {
     segment: "products",
@@ -124,6 +130,7 @@ function DemoPageContent({ pathname }) {
       {pathname === "/profile" ? <AdminProfile /> : null}
       {pathname === "/users" ? <DashboardUsers /> : null}
       {pathname === "/categories" ? <CategoryDashboard /> : null}
+      {pathname === "/archived-categories" ? <ArchivedCategories /> : null}
       {pathname === "/products" ? <ProductDashboard /> : null}
       {pathname === "/archived-products" ? <ArchivedProducts /> : null}
       {pathname === "/contactUs" ? <ContactUsAdmin /> : null}
