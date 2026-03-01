@@ -140,7 +140,7 @@
 }
 
 .category-icon-image {
-	width: 195%;
+	/* width: 195%; */
 	height: 110%;
 	/* border-radius: 50%; */
 	object-fit: cover;
