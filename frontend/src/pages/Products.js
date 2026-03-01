@@ -38,6 +38,24 @@ export default function Products() {
       .trim()
       .toLowerCase();
 
+  const resolveImageUrl = (value) => {
+    const rawUrl =
+      typeof value === "string"
+        ? value
+        : typeof value === "object"
+          ? value?.url || value?.path || value?.filename || ""
+          : "";
+
+    if (!rawUrl || typeof rawUrl !== "string") return "";
+    if (rawUrl.startsWith("http://") || rawUrl.startsWith("https://")) {
+      return rawUrl;
+    }
+    if (rawUrl.startsWith("/")) {
+      return `${API_URL}${rawUrl}`;
+    }
+    return `${API_URL}/images/${rawUrl}`;
+  };
+
   const getUniqueColorImages = (images = []) => {
     const uniqueByColor = new Map();
 
@@ -376,7 +394,7 @@ export default function Products() {
                         <img
                           src={
                             selectedImage?.url
-                              ? `${API_URL}/images/${selectedImage.url}`
+                              ? resolveImageUrl(selectedImage.url)
                               : "https://via.placeholder.com/300x220?text=No+Image"
                           }
                           alt={product.name}

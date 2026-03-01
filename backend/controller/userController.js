@@ -1,7 +1,9 @@
 const { User } = require('../model/UserModel.js');
 const bcrypt = require('bcrypt');
-const fs = require('fs'); // fs => للتعامل مع الملفات
-const path = require('path');
+const {
+  uploadImageBuffer,
+  deleteImageByUrl,
+} = require("../utils/cloudinaryImage");
 
 // crud operations
 
@@ -17,7 +19,10 @@ const createUser = async (req, res) => {
 
     let profilePicture;
     if (req.file) { // إذا تم تحميل صورة
-      profilePicture = `/images/${req.file.filename}`; // حفظ مسار الصورة
+      const uploaded = await uploadImageBuffer(req.file, {
+        folder: "smartcart/users",
+      });
+      profilePicture = uploaded.url;
     }
 
     const user = new User({
@@ -91,18 +96,20 @@ const updateUser = async (req, res) => {
 
     // إذا في صورة جديدة
     if (req.file) {
-      // حذف الصورة القديمة من مجلد images (إذا كانت محلية)
-      if (user.profilePicture && user.profilePicture.startsWith("/images/")) {
-        const oldImagePath = path.join(__dirname, "..", "public", user.profilePicture);
-        fs.unlink(oldImagePath, (error) => {
-            if (error) {
-                console.error("Failed to delete old profile picture:", error);
-            }
+      const uploaded = await uploadImageBuffer(req.file, {
+        folder: "smartcart/users",
+      });
+
+      if (user.profilePicture) {
+        await deleteImageByUrl(user.profilePicture).catch((error) => {
+          if (error) {
+            console.error("Failed to delete old profile picture:", error);
+          }
         });
       }
 
       // تعيين الصورة الجديدة
-      user.profilePicture = `/images/${req.file.filename}`;
+      user.profilePicture = uploaded.url;
     }
 
     if (password) {
@@ -128,11 +135,9 @@ const deleteUser = async (req, res) => {
     return res.status(404).json({ message: "User not found" });
   }
 
-  // تحقق إذا عنده صورة محلية (يعني تبدأ بـ "/images/")
-   if (user.profilePicture && user.profilePicture.startsWith("/images/")) {
-       const imagePath = path.join(__dirname, "..", "public", user.profilePicture);
-       fs.unlink(imagePath, () => {}); // حذف بدون أي طباعة أو تعامل مع الخطأ
-    }
+  if (user.profilePicture) {
+    await deleteImageByUrl(user.profilePicture).catch(() => {});
+  }
 
     // بدل ما نحذف المستخدم من الداتا بيز، نعلم أنه محذوف
     user.isDeleted = true;

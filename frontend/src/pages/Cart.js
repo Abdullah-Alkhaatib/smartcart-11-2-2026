@@ -28,6 +28,24 @@ export default function Cart() {
 
   const isMongoObjectId = (value) => /^[a-f\d]{24}$/i.test(String(value || ""));
 
+  const resolveImageUrl = (value) => {
+    const rawUrl =
+      typeof value === "string"
+        ? value
+        : typeof value === "object"
+          ? value?.url || value?.path || value?.filename || ""
+          : "";
+
+    if (!rawUrl || typeof rawUrl !== "string") return "";
+    if (rawUrl.startsWith("http://") || rawUrl.startsWith("https://")) {
+      return rawUrl;
+    }
+    if (rawUrl.startsWith("/")) {
+      return `${API_URL}${rawUrl}`;
+    }
+    return `${API_URL}/images/${rawUrl}`;
+  };
+
   // Format price with KD currency
   const formatPrice = (price) => {
     return `${price.toFixed(2)} د.ك`;
@@ -198,9 +216,9 @@ export default function Cart() {
                 (img) => img.color === item.color,
               );
               const imageUrl = selectedImage
-                ? `${API_URL}/images/${selectedImage.url}`
+                ? resolveImageUrl(selectedImage.url)
                 : product.images?.[0]
-                  ? `${API_URL}/images/${product.images[0].url}`
+                  ? resolveImageUrl(product.images[0].url)
                   : "/placeholder.png";
 
               const effectivePrice = getEffectivePrice(product);

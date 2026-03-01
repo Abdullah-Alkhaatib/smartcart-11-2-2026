@@ -1,6 +1,8 @@
 const { Category } = require("../model/CategoryModel.js");
-const fs = require("fs");
-const path = require("path");
+const {
+  uploadImageBuffer,
+  deleteImageByUrl,
+} = require("../utils/cloudinaryImage");
 
 // create category
 const createCategory = async (req, res) => {
@@ -15,7 +17,10 @@ const createCategory = async (req, res) => {
 
     let image;
     if (req.file) {
-      image = `/images/${req.file.filename}`; // Save image path
+      const uploaded = await uploadImageBuffer(req.file, {
+        folder: "smartcart/categories",
+      });
+      image = uploaded.url;
     }
 
     const category = new Category({
@@ -90,17 +95,19 @@ const updateCategory = async (req, res) => {
 
     // If new image is provided
     if (req.file) {
-      // Delete old image from images folder (if it's local)
-      if (category.image && category.image.startsWith("/images/")) {
-        const oldImagePath = path.join(  __dirname,  "..",  "public",  category.image.replace(/^\/+/, ""));
-        await fs.promises.unlink(oldImagePath).catch((error) => {
+      const uploaded = await uploadImageBuffer(req.file, {
+        folder: "smartcart/categories",
+      });
+
+      if (category.image) {
+        await deleteImageByUrl(category.image).catch((error) => {
           if (error) {
             console.error("Failed to delete old category image:", error);
           }
         });
       }
 
-      category.image = `/images/${req.file.filename}`; // Save new image path
+      category.image = uploaded.url;
     }
 
     await category.save();

@@ -22,6 +22,24 @@ export default function ProductDetails() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
+  function resolveImageUrl(value) {
+    const rawUrl =
+      typeof value === "string"
+        ? value
+        : typeof value === "object"
+          ? value?.url || value?.path || value?.filename || ""
+          : "";
+
+    if (!rawUrl || typeof rawUrl !== "string") return "";
+    if (rawUrl.startsWith("http://") || rawUrl.startsWith("https://")) {
+      return rawUrl;
+    }
+    if (rawUrl.startsWith("/")) {
+      return `${API_URL}${rawUrl}`;
+    }
+    return `${API_URL}/images/${rawUrl}`;
+  }
+
   async function fetchProductDetails() {
     try {
       setLoading(true);
@@ -107,7 +125,7 @@ export default function ProductDetails() {
             <img
               src={
                 selectedImage?.url
-                  ? `${API_URL}/images/${selectedImage.url}`
+                  ? resolveImageUrl(selectedImage.url)
                   : "https://via.placeholder.com/500?text=No+Image"
               }
               alt={product.name}
@@ -130,7 +148,7 @@ export default function ProductDetails() {
                     onClick={() => handleColorSelect(index)}
                   >
                     <img
-                      src={`${API_URL}/images/${img.url}`}
+                      src={resolveImageUrl(img.url)}
                       alt={img.color || `اللون ${index + 1}`}
                       className="color-thumbnail"
                     />

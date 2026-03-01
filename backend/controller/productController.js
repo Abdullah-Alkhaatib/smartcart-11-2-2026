@@ -1,7 +1,9 @@
 const { Product } = require("../model/ProductModel.js");
 const { Category } = require("../model/CategoryModel.js");
-const fs = require("fs");
-const path = require("path");
+const {
+  uploadImageBuffer,
+  deleteImageByUrl,
+} = require("../utils/cloudinaryImage");
 
 const getActiveCategoryIds = async () => {
   const activeCategories = await Category.find({ isActive: true }).select("_id");
@@ -10,6 +12,8 @@ const getActiveCategoryIds = async () => {
 
 // create product
 const createProduct = async (req, res) => {
+  let uploadedImageUrls = [];
+
   try {
     const { name, description, price, discount, category } = req.body;
     const imagesData = req.body.images ? JSON.parse(req.body.images) : []; // بيانات الصور من الفورم (url, stock, color, size)
@@ -26,10 +30,18 @@ const createProduct = async (req, res) => {
       return res.status(400).json({ message: "Invalid category" });
     }
 
+    if (req.files && req.files.length > 0) {
+      const uploadedImages = await Promise.all(
+        req.files.map((file) =>
+          uploadImageBuffer(file, { folder: "smartcart/products" }),
+        ),
+      );
+      uploadedImageUrls = uploadedImages.map((image) => image.url);
+    }
+
     // handel images - كل صورة تحتوي على url و stock و color
     const images = imagesData.map((imgData, index) => ({
-      url:
-        req.files && req.files[index] ? req.files[index].filename : imgData.url,
+      url: uploadedImageUrls[index] || imgData.url,
       stock: parseInt(imgData.stock) || 0,
       color: imgData.color || "",
     }));
@@ -48,20 +60,10 @@ const createProduct = async (req, res) => {
 
     res.status(201).json(product);
   } catch (error) {
-    // لو حصل خطأ أثناء إنشاء المنتج، لازم نتأكد من حذف أي صور تم رفعها لتجنب تخزين صور غير مستخدمة على السيرفر
-    if (req.files) {
-      req.files.forEach((file) => {
-        const filePath = path.join(
-          __dirname,
-          "..",
-          "public",
-          "images",
-          file.filename,
-        );
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-        }
-      });
+    if (uploadedImageUrls.length > 0) {
+      await Promise.all(
+        uploadedImageUrls.map((url) => deleteImageByUrl(url).catch(() => {})),
+      );
     }
 
     console.error(error);
@@ -134,25 +136,25 @@ const updateProduct = async (req, res) => {
 
     // إذا كانت هناك صور جديدة فقط، احذف القديمة وضيف الجديدة
     if (req.files && req.files.length > 0) {
-      // حذف الصور القديمة من الديسك فقط إذا رفعنا صور جديدة
-      product.images.forEach((img) => {
-        const oldPath = path.join(
-          __dirname,
-          "..",
-          "public",
-          "images",
-          img.url || img,
-        ); // التعامل مع الهيكل القديم والجديد
-        if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath);
-        }
-      });
+      const uploadedImages = await Promise.all(
+        req.files.map((file) =>
+          uploadImageBuffer(file, { folder: "smartcart/products" }),
+        ),
+      );
+      const uploadedImageUrls = uploadedImages.map((image) => image.url);
+
+      await Promise.all(
+        product.images.map((img) =>
+          deleteImageByUrl(img.url || img).catch(() => {}),
+        ),
+      );
+
       // الصور الجديدة = الملفات الجديدة + معلومات الصور الموجودة (بدون الملفات القديمة)
       const newImagesData = imagesData
         ? imagesData.slice(product.images.length)
         : [];
-      product.images = req.files.map((file, index) => ({
-        url: file.filename,
+      product.images = uploadedImageUrls.map((url, index) => ({
+        url,
         stock: newImagesData[index]
           ? parseInt(newImagesData[index].stock) || 0
           : 0,
@@ -214,13 +216,9 @@ const deleteForceProduct = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // حذف الصور من المجلد - التعامل مع الهيكل الجديد
-    product.images.forEach((img) => {
-      const imagePath = path.join(__dirname, "..", "public", "images", img.url); // img.url بدل img
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-      }
-    });
+    await Promise.all(
+      product.images.map((img) => deleteImageByUrl(img.url || img).catch(() => {})),
+    );
 
     await Product.findByIdAndDelete(id);
     res.status(200).json({ message: "Product permanently deleted" });

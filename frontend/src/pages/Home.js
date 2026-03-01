@@ -86,7 +86,7 @@ export default function Home() {
     navigate("/products");
   }
 
-  function resolveCategoryImageUrl(value) {
+  function resolveImageUrl(value) {
     if (!value) return "";
 
     const rawUrl =
@@ -138,7 +138,7 @@ export default function Home() {
           <h2 className="section-title">تصفح حسب الفئة</h2>
           <div className="categories-grid">
             {categories.map((category) => {
-              const categoryImage = resolveCategoryImageUrl(category.image);
+              const categoryImage = resolveImageUrl(category.image);
               return (
                 <div
                   key={category._id}
@@ -189,74 +189,87 @@ export default function Home() {
                 const hasDiscount = product.discount > 0;
 
                 return (
-                <div key={product._id} className="product-card">
-                  <div className="product-image-wrapper">
-                    <img
-                      src={
-                        product.images && product.images[0]?.url
-                          ? `${API_URL}/images/${product.images[0].url}`
-                          : "https://via.placeholder.com/300x220?text=No+Image"
-                      }
-                      alt={product.name}
-                      className="product-image"
-                    />
-                    {hasDiscount && (
-                      <span className="product-badge discount-badge">-{product.discount}%</span>
-                    )}
-                    {totalStock === 0 && (
-                      <span className="product-badge out-of-stock-badge">غير متوفر</span>
-                    )}
-                    {totalStock > 0 && totalStock <= LOW_STOCK_THRESHOLD && !hasDiscount && (
-                      <span className="product-badge low-stock-badge">آخر {totalStock} قطع</span>
-                    )}
-                  </div>
-
-                  <div className="product-info">
-                    <h3 className="product-title">{product.name}</h3>
-                    <p className="product-description">
-                      {product.description?.substring(0, 60)}
-                    </p>
-
-                    <div className="product-footer">
-                      <div className="product-price">
-                        <span className="current-price">
-                          {product.discount > 0
-                            ? (
-                                product.price -
-                                (product.price * product.discount) / 100
-                              ).toFixed(2)
-                            : product.price}{" "}
-                          د.ك
+                  <div key={product._id} className="product-card">
+                    <div className="product-image-wrapper">
+                      <img
+                        src={
+                          product.images && product.images[0]?.url
+                            ? resolveImageUrl(product.images[0].url)
+                            : "https://via.placeholder.com/300x220?text=No+Image"
+                        }
+                        alt={product.name}
+                        className="product-image"
+                      />
+                      {hasDiscount && (
+                        <span className="product-badge discount-badge">
+                          -{product.discount}%
                         </span>
-                        {product.discount > 0 && (
-                          <span className="old-price">{product.price} د.ك</span>
+                      )}
+                      {totalStock === 0 && (
+                        <span className="product-badge out-of-stock-badge">
+                          غير متوفر
+                        </span>
+                      )}
+                      {totalStock > 0 &&
+                        totalStock <= LOW_STOCK_THRESHOLD &&
+                        !hasDiscount && (
+                          <span className="product-badge low-stock-badge">
+                            آخر {totalStock} قطع
+                          </span>
                         )}
+                    </div>
+
+                    <div className="product-info">
+                      <h3 className="product-title">{product.name}</h3>
+                      <p className="product-description">
+                        {product.description?.substring(0, 60)}
+                      </p>
+
+                      <div className="product-footer">
+                        <div className="product-price">
+                          <span className="current-price">
+                            {product.discount > 0
+                              ? (
+                                  product.price -
+                                  (product.price * product.discount) / 100
+                                ).toFixed(2)
+                              : product.price}{" "}
+                            د.ك
+                          </span>
+                          {product.discount > 0 && (
+                            <span className="old-price">
+                              {product.price} د.ك
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="product-actions">
+                        <button
+                          onClick={() => navigate(`/product/${product._id}`)}
+                          className="view-details-btn"
+                          aria-label={`عرض تفاصيل ${product.name}`}
+                        >
+                          {/* <Eye size={16} /> */}
+                          <span>التفاصيل</span>
+                        </button>
+
+                        <button
+                          onClick={() => handleAddToCart(product)}
+                          className={`add-to-cart-btn ${totalStock === 0 ? "disabled" : ""}`}
+                          disabled={totalStock === 0}
+                          aria-label={`إضافة ${product.name} إلى السلة`}
+                        >
+                          <ShoppingCart size={16} />
+                          <span>
+                            {totalStock === 0 ? "غير متوفر" : "أضف للسلة"}
+                          </span>
+                        </button>
                       </div>
                     </div>
-
-                    <div className="product-actions">
-                      <button
-                        onClick={() => navigate(`/product/${product._id}`)}
-                        className="view-details-btn"
-                        aria-label={`عرض تفاصيل ${product.name}`}
-                      >
-                        {/* <Eye size={16} /> */}
-                        <span>التفاصيل</span>
-                      </button>
-
-                      <button
-                        onClick={() => handleAddToCart(product)}
-                        className={`add-to-cart-btn ${totalStock === 0 ? "disabled" : ""}`}
-                        disabled={totalStock === 0}
-                        aria-label={`إضافة ${product.name} إلى السلة`}
-                      >
-                        <ShoppingCart size={16} />
-                        <span>{totalStock === 0 ? "غير متوفر" : "أضف للسلة"}</span>
-                      </button>
-                    </div>
                   </div>
-                </div>
-              )})}
+                );
+              })}
             </div>
 
             {hasMoreProducts && (
@@ -264,7 +277,9 @@ export default function Home() {
                 <button
                   type="button"
                   className="load-more-btn"
-                  onClick={() => setVisibleCount((prev) => prev + PRODUCTS_PER_BATCH)}
+                  onClick={() =>
+                    setVisibleCount((prev) => prev + PRODUCTS_PER_BATCH)
+                  }
                 >
                   <ChevronDown size={20} />
                   <span>تحميل المزيد</span>
