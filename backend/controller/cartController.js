@@ -29,7 +29,7 @@ const addToCart = async (req, res) => {
     }
 
     if (parsedQuantity > (variant.stock || 0)) {
-      return res.status(400).json({ message: "Insufficient stock" });
+      return res.status(400).json({ message: "مخزون غير كاف" });
     }
 
     let cart = await Cart.findOne({ user: userId });
@@ -46,7 +46,7 @@ const addToCart = async (req, res) => {
     if (existingItem) {
       const nextQuantity = existingItem.quantity + parsedQuantity;
       if (nextQuantity > (variant.stock || 0)) {
-        return res.status(400).json({ message: "Insufficient stock" });
+        return res.status(400).json({ message: "مخزون غير كاف" });
       }
       existingItem.quantity = nextQuantity;
     } else {
@@ -133,7 +133,7 @@ const updateCartItem = async (req, res) => {
     }
 
     if (parsedQuantity > (variant.stock || 0)) {
-      return res.status(400).json({ message: "Insufficient stock" });
+      return res.status(400).json({ message: "مخزون غير كاف" });
     }
 
     item.quantity = parsedQuantity;

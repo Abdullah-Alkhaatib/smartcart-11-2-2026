@@ -50,7 +50,7 @@ const createOrder = async (req, res) => {
       );
 
       if (!variant || variant.stock < item.quantity) {
-        throw new Error("Insufficient stock");
+        throw new Error("مخزون غير كاف");
       }
 
       // 🔥 خصم المخزون
