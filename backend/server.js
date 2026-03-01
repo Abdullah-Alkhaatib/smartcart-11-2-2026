@@ -25,8 +25,6 @@ app.use(
 );
 app.use(hpp());
 
-app.use("/images", express.static(__dirname + "/public/images")); // عشان نقدر نوصل للصور من خلال المسار /images
-
 // Define routes
 const authRoute = require("./routes/authRoute.js");
 const userRoute = require("./routes/userRoute.js");
