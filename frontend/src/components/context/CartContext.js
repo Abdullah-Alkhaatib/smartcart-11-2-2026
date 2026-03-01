@@ -29,7 +29,7 @@ export const CartProvider = ({ children }) => {
       setCartItems(res.data?.items || []);
     } catch (error) {
       console.error("Error fetching cart items:", error);
-      toast.error("Failed to load cart items");
+      toast.error("فشل تحميل عناصر سلة التسوق");
     } finally {
       setLoading(false);
     }
@@ -43,7 +43,7 @@ export const CartProvider = ({ children }) => {
   const addToCart = async (productId, color, quantity) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("Please login first");
+      toast.error("يرجى تسجيل الدخول أولاً");
       return;
     }
     setLoading(true);
@@ -60,11 +60,11 @@ export const CartProvider = ({ children }) => {
         },
       );
       setCartItems(res.data?.items || []);
-      toast.success("Item added to cart");
+      toast.success("تم إضافة العنصر إلى سلة التسوق");
       return res;
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Failed to add item to cart",
+        error.response?.data?.message || "فشل إضافة العنصر إلى سلة التسوق",
       );
     } finally {
       setLoading(false);

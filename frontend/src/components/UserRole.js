@@ -32,11 +32,11 @@ export const UserRoleProvider = ({ children }) => {
       if (status === 401 || status === 403) {
         localStorage.removeItem("token");
         setRole(null);
-        toast.error("Session expired, please login again", {
+        toast.error("انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى", {
           id: "auth-error",
         });
       } else if (!error.response) {
-        toast.error("Server unavailable. You are still logged in.", {
+        toast.error("الخادم غير متاح. لا تزال مسجلاً دخولك.", {
           id: "auth-error",
         });
       }
