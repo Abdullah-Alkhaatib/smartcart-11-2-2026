@@ -861,6 +861,11 @@
     height: 240px;
   }
 
+  .product-image {
+    object-fit: contain;
+    object-position: center;
+  }
+
   .product-footer {
     flex-direction: column;
     align-items: stretch;
