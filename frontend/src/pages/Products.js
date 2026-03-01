@@ -6,7 +6,6 @@ import { useProductContext } from "../components/context/ProductContext";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../components/context/CartContext";
 import {
-  Eye,
   ShoppingCart,
   DollarSign,
   Package,
