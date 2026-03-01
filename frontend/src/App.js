@@ -63,6 +63,7 @@ function App() {
             <Route path="/profile" element={<Dashboard />} />
             <Route path="/users" element={<Dashboard />} />
             <Route path="/categories" element={<Dashboard />} />
+            <Route path="/archived-categories" element={<Dashboard />} />
             <Route path="/products" element={<Dashboard />} />
             <Route path="/archived-products" element={<Dashboard />} />
             <Route path="/contactUs" element={<Dashboard />} />
