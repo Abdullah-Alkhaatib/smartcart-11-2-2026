@@ -310,7 +310,7 @@ export default function SearchResults() {
                       className="sr-details-btn"
                       onClick={() => navigate(`/product/${product._id}`)}
                     >
-                      <Eye size={16} />
+                      {/* <Eye size={16} /> */}
                       <span>التفاصيل</span>
                     </button>
 

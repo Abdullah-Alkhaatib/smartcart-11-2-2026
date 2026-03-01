@@ -379,11 +379,13 @@ export default function Products() {
                         غير متوفر
                       </div>
                     )}
-                    {totalStock > 0 && totalStock <= LOW_STOCK_THRESHOLD && !hasDiscount && (
-                      <div className="product-badge low-stock-badge">
-                        آخر {totalStock} قطع
-                      </div>
-                    )}
+                    {totalStock > 0 &&
+                      totalStock <= LOW_STOCK_THRESHOLD &&
+                      !hasDiscount && (
+                        <div className="product-badge low-stock-badge">
+                          آخر {totalStock} قطع
+                        </div>
+                      )}
 
                     {/* Product Image */}
                     <div
@@ -416,7 +418,7 @@ export default function Products() {
                             navigate(`/product/${product._id}`);
                           }}
                         >
-                          <Eye size={18} />
+                          {/* <Eye size={18} /> */}
                           <span>عرض التفاصيل</span>
                         </button>
                       </div>
@@ -481,18 +483,30 @@ export default function Products() {
                           )}
                         </div>
 
-                        <button
-                          className={`add-to-cart-btn ${!selectedImage || selectedImage.stock === 0 ? "disabled" : ""}`}
-                          onClick={() => handleAddToCart(product)}
-                          disabled={!selectedImage || selectedImage.stock === 0}
-                        >
-                          <ShoppingCart size={18} />
-                          <span>
-                            {!selectedImage || selectedImage.stock === 0
-                              ? "غير متوفر"
-                              : "أضف للسلة"}
-                          </span>
-                        </button>
+                        <div className="product-actions">
+                          <button
+                            className="view-details-btn"
+                            onClick={() => navigate(`/product/${product._id}`)}
+                          >
+                            <Eye size={17} />
+                            <span>التفاصيل</span>
+                          </button>
+
+                          <button
+                            className={`add-to-cart-btn ${!selectedImage || selectedImage.stock === 0 ? "disabled" : ""}`}
+                            onClick={() => handleAddToCart(product)}
+                            disabled={
+                              !selectedImage || selectedImage.stock === 0
+                            }
+                          >
+                            <ShoppingCart size={17} />
+                            <span>
+                              {!selectedImage || selectedImage.stock === 0
+                                ? "غير متوفر"
+                                : "أضف للسلة"}
+                            </span>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
