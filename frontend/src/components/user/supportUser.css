@@ -570,7 +570,8 @@
 }
 
 .support-user__header {
-	background: rgba(15, 23, 42, 0.48);
+	/* background: rgba(15, 23, 42, 0.48); */
+	background: rgba(15, 23, 42, 0.35);
 	border: 1px solid rgba(148, 163, 184, 0.35);
 	border-radius: 16px;
 	padding: 1.1rem 1.2rem;
@@ -595,7 +596,7 @@
 }
 
 .support-user__chat-box {
-	background: rgba(15, 23, 42, 0.58);
+	/* background: rgba(15, 23, 42, 0.58); */
 	border: 1px solid rgba(148, 163, 184, 0.3);
 	border-radius: 16px;
 	overflow: hidden;

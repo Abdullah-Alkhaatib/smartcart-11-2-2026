@@ -335,7 +335,7 @@ export default function SupportUser() {
           </div>
         </div>
 
-        <h2 className="support-user__nana-title">نعنوع</h2>
+        <h2 className="support-user__nana-title">نعنوع الشطورة</h2>
         {/* <p className="support-user__nana-subtitle">نعنوعي</p> */}
       </div>
 
