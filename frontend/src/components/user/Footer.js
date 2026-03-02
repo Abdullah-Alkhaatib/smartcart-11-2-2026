@@ -1,8 +1,70 @@
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 import "./footer.css";
 
 export default function Footer() {
 	const currentYear = new Date().getFullYear();
+	const siteUrl = window.location.origin;
+	const qrLongPressTimerRef = useRef(null);
+	const qrLongPressTriggeredRef = useRef(false);
+
+	useEffect(() => {
+		return () => {
+			if (qrLongPressTimerRef.current) {
+				clearTimeout(qrLongPressTimerRef.current);
+			}
+		};
+	}, []);
+
+	const copySiteLink = async () => {
+		try {
+			if (navigator.clipboard?.writeText) {
+				await navigator.clipboard.writeText(siteUrl);
+			} else {
+				const tempInput = document.createElement("input");
+				tempInput.value = siteUrl;
+				document.body.appendChild(tempInput);
+				tempInput.select();
+				document.execCommand("copy");
+				document.body.removeChild(tempInput);
+			}
+			toast.success("تم نسخ رابط الموقع");
+		} catch {
+			toast.error("تعذر نسخ الرابط");
+		}
+	};
+
+	const startQrLongPress = () => {
+		qrLongPressTriggeredRef.current = false;
+		if (qrLongPressTimerRef.current) {
+			clearTimeout(qrLongPressTimerRef.current);
+		}
+
+		qrLongPressTimerRef.current = setTimeout(() => {
+			qrLongPressTriggeredRef.current = true;
+			copySiteLink();
+		}, 600);
+	};
+
+	const stopQrLongPress = (event) => {
+		if (qrLongPressTimerRef.current) {
+			clearTimeout(qrLongPressTimerRef.current);
+			qrLongPressTimerRef.current = null;
+		}
+
+		if (qrLongPressTriggeredRef.current) {
+			event.preventDefault();
+			event.stopPropagation();
+		}
+	};
+
+	const handleQrClick = (event) => {
+		if (qrLongPressTriggeredRef.current) {
+			event.preventDefault();
+			qrLongPressTriggeredRef.current = false;
+		}
+	};
 
 	return (
 		<footer className="site-footer" dir="rtl">
@@ -81,6 +143,31 @@ export default function Footer() {
 									height="22"
 								/>
 							</a>
+						</div>
+
+						<div className="site-footer__qr-wrapper">
+							<p className="site-footer__qr-text">امسح الكود لفتح الموقع مباشرة</p>
+							<a
+								href={siteUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+								onTouchStart={startQrLongPress}
+								onTouchEnd={stopQrLongPress}
+								onTouchCancel={stopQrLongPress}
+								onMouseDown={startQrLongPress}
+								onMouseUp={stopQrLongPress}
+								onMouseLeave={stopQrLongPress}
+								onClick={handleQrClick}
+								className="site-footer__qr-link"
+								aria-label="SmartCart website QR"
+							>
+								<img
+									src="/qrcode.png"
+									alt="QR Code for SmartCart website"
+									className="site-footer__qr-image"
+								/>
+							</a>
+							{/* <p className="site-footer__qr-hint">اضغط مطولًا لنسخ رابط الموقع</p> */}
 						</div>
 					</div>
 				</div>
