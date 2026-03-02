@@ -146,7 +146,7 @@ export default function Footer() {
 						</div>
 
 						<div className="site-footer__qr-wrapper">
-							<p className="site-footer__qr-text">امسح الكود لفتح الموقع مباشرة</p>
+							<p className="site-footer__qr-text">اضغط مطولًا لنسخ رابط الموقع</p>
 							<a
 								href={siteUrl}
 								target="_blank"
