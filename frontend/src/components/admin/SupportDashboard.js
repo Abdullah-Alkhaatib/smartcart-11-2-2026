@@ -10,6 +10,7 @@ export default function SupportDashboard() {
 	const [conversations, setConversations] = useState([]);
 	const [selectedConversation, setSelectedConversation] = useState(null);
 	const [messages, setMessages] = useState([]);
+	const [userStatuses, setUserStatuses] = useState({});
 	const [messageText, setMessageText] = useState("");
 	const [loadingConversations, setLoadingConversations] = useState(false);
 	const [loadingMessages, setLoadingMessages] = useState(false);
@@ -78,6 +79,52 @@ export default function SupportDashboard() {
 		}),
 		[token],
 	);
+
+	const selectedUserStatusLabel = useMemo(() => {
+		const selectedUserId = selectedConversation?._id;
+		if (!selectedUserId) return "";
+
+		const status = userStatuses[selectedUserId];
+		if (!status) {
+			return "غير متصل حاليًا";
+		}
+
+		if (status.isOnline) {
+			return "متصل الآن";
+		}
+
+		if (!status.lastSeenAt) {
+			return "غير متصل (لا يوجد ظهور سابق)";
+		}
+
+		const lastSeenDate = new Date(status.lastSeenAt);
+		if (Number.isNaN(lastSeenDate.getTime())) {
+			return "غير متصل حاليًا";
+		}
+
+		const now = new Date();
+		const isSameDay =
+			lastSeenDate.getFullYear() === now.getFullYear() &&
+			lastSeenDate.getMonth() === now.getMonth() &&
+			lastSeenDate.getDate() === now.getDate();
+
+		const timePart = lastSeenDate.toLocaleTimeString("ar-EG", {
+			hour: "2-digit",
+			minute: "2-digit",
+		});
+
+		if (isSameDay) {
+			return `آخر ظهور اليوم ${timePart}`;
+		}
+
+		const datePart = lastSeenDate.toLocaleDateString("ar-EG", {
+			year: "numeric",
+			month: "2-digit",
+			day: "2-digit",
+		});
+
+		return `آخر ظهور ${datePart} ${timePart}`;
+	}, [selectedConversation?._id, userStatuses]);
 
 	const fetchConversations = useCallback(async (options = {}) => {
 		const { silent = false } = options;
@@ -172,12 +219,37 @@ export default function SupportDashboard() {
 			}
 		};
 
+		const handleUserStatus = (statusPayload) => {
+			const incomingUserId = statusPayload?.userId;
+			if (!incomingUserId) return;
+
+			setUserStatuses((prev) => ({
+				...prev,
+				[String(incomingUserId)]: {
+					isOnline: Boolean(statusPayload.isOnline),
+					lastSeenAt: statusPayload.lastSeenAt || null,
+				},
+			}));
+		};
+
+		if (selectedConversation?._id) {
+			socket.emit(
+				"support:user-status:request",
+				{ userId: selectedConversation._id },
+				(statusPayload) => {
+					handleUserStatus(statusPayload);
+				},
+			);
+		}
+
 		socket.on("support:new-message", handleIncoming);
 		socket.on("support:conversation-updated", handleConversationUpdated);
+		socket.on("support:user-status", handleUserStatus);
 
 		return () => {
 			socket.off("support:new-message", handleIncoming);
 			socket.off("support:conversation-updated", handleConversationUpdated);
+			socket.off("support:user-status", handleUserStatus);
 		};
 	}, [
 		appendMessageUnique,
@@ -294,7 +366,18 @@ export default function SupportDashboard() {
 					) : (
 						<>
 							<div className="sdb-chat-head">
-								<h3>{selectedConversation.userName || "مستخدم"}</h3>
+								<div className="sdb-chat-head__identity">
+									<h3>{selectedConversation.userName || "مستخدم"}</h3>
+									<small
+										className={`sdb-user-status ${
+											userStatuses[selectedConversation._id]?.isOnline
+												? "sdb-user-status--online"
+												: "sdb-user-status--offline"
+										}`}
+									>
+										{selectedUserStatusLabel}
+									</small>
+								</div>
 								{/* <span>ID: {selectedConversation._id}</span> */}
 							</div>
 

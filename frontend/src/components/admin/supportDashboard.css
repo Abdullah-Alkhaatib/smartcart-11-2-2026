@@ -153,6 +153,32 @@
 	font-size: 16px;
 }
 
+.sdb-chat-head__identity {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.sdb-user-status {
+	font-size: 12px;
+	padding: 3px 8px;
+	border-radius: 999px;
+	border: 1px solid transparent;
+	width: fit-content;
+}
+
+.sdb-user-status--online {
+	color: #86efac;
+	background: rgba(22, 101, 52, 0.25);
+	border-color: rgba(134, 239, 172, 0.45);
+}
+
+.sdb-user-status--offline {
+	color: #cbd5e1;
+	background: rgba(51, 65, 85, 0.45);
+	border-color: rgba(148, 163, 184, 0.35);
+}
+
 .sdb-chat-head span {
 	color: rgba(203, 213, 225, 0.75);
 	font-size: 12px;

@@ -56,6 +56,10 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    supportLastSeenAt: {
+        type: Date,
+        default: null,
+    },
     // refreshToken: {
     //     type: String,
     //     select: false // عشان لما نجيب بيانات المستخدم ما يطلع لنا الريفرش توكن
