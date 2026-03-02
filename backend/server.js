@@ -3,10 +3,13 @@ const connectToDB = require("./config/connectToDB.js");
 const cors = require("cors");
 const helmet = require("helmet"); // إضافة Helmet لتحسين الأمان
 const hpp = require("hpp");
+const http = require("http");
+const { initializeSocket } = require("./config/socket.js");
 
 require("dotenv").config();
 
 const app = express();
+const server = http.createServer(app);
 
 connectToDB();
 
@@ -50,6 +53,8 @@ app.get("/", (req, res) => {
 
 // start the server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+initializeSocket(server);
+
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

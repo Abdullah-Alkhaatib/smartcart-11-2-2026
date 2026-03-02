@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { MessageCircle, Send, Headset, Clock3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import API_URL from "../../config/api";
+import { getSocket } from "../../utils/socket";
 import "./supportUser.css";
 
 export default function SupportUser() {
@@ -17,6 +18,14 @@ export default function SupportUser() {
 	const messagesContainerRef = useRef(null);
 
 	const token = useMemo(() => localStorage.getItem("token"), []);
+
+	const appendMessageUnique = useCallback((incomingMessage) => {
+		if (!incomingMessage?._id) return;
+		setMessages((prev) => {
+			if (prev.some((msg) => msg._id === incomingMessage._id)) return prev;
+			return [...prev, incomingMessage];
+		});
+	}, []);
 
 	const chatItems = useMemo(() => {
 		const items = [];
@@ -70,20 +79,23 @@ export default function SupportUser() {
 		setUserId(data._id);
 	}, [navigate, token]);
 
-	const fetchMyMessages = useCallback(async () => {
+	const fetchMyMessages = useCallback(async (options = {}) => {
+		const { silent = false } = options;
 		if (!token) return;
 
 		try {
-			setLoading(true);
+			if (!silent) setLoading(true);
 			const { data } = await axios.get(`${API_URL}/api/support/user-messages`, {
 				headers: { Authorization: `Bearer ${token}` },
 			});
 
 			setMessages(Array.isArray(data.messages) ? data.messages : []);
 		} catch (error) {
-			toast.error(error.response?.data?.error || "فشل تحميل رسائل الدعم");
+			if (!silent) {
+				toast.error(error.response?.data?.error || "فشل تحميل رسائل الدعم");
+			}
 		} finally {
-			setLoading(false);
+			if (!silent) setLoading(false);
 		}
 	}, [token]);
 
@@ -110,6 +122,24 @@ export default function SupportUser() {
 		}
 	}, [messages]);
 
+	useEffect(() => {
+		if (!token || !userId) return undefined;
+
+		const socket = getSocket();
+		socket.emit("join:user", userId);
+
+		const handleIncoming = (incomingMessage) => {
+			if (String(incomingMessage?.userId) !== String(userId)) return;
+			appendMessageUnique(incomingMessage);
+		};
+
+		socket.on("support:new-message", handleIncoming);
+
+		return () => {
+			socket.off("support:new-message", handleIncoming);
+		};
+	}, [appendMessageUnique, token, userId]);
+
 	async function handleSend(event) {
 		event.preventDefault();
 
@@ -135,7 +165,7 @@ export default function SupportUser() {
 			});
 
 			if (data?.newMessage) {
-				setMessages((prev) => [...prev, data.newMessage]);
+				appendMessageUnique(data.newMessage);
 			} else {
 				await fetchMyMessages();
 			}

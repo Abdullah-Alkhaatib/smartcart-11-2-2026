@@ -3,6 +3,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { Headset, RefreshCw, Send, MessageSquare } from "lucide-react";
 import API_URL from "../../config/api";
+import { getSocket } from "../../utils/socket";
 import "./supportDashboard.css";
 
 export default function SupportDashboard() {
@@ -16,6 +17,14 @@ export default function SupportDashboard() {
 
 	const messagesEndRef = useRef(null);
 	const token = useMemo(() => localStorage.getItem("token"), []);
+
+	const appendMessageUnique = useCallback((incomingMessage) => {
+		if (!incomingMessage?._id) return;
+		setMessages((prev) => {
+			if (prev.some((message) => message._id === incomingMessage._id)) return prev;
+			return [...prev, incomingMessage];
+		});
+	}, []);
 
 	const chatItems = useMemo(() => {
 		const items = [];
@@ -70,11 +79,12 @@ export default function SupportDashboard() {
 		[token],
 	);
 
-	const fetchConversations = useCallback(async () => {
+	const fetchConversations = useCallback(async (options = {}) => {
+		const { silent = false } = options;
 		if (!token) return;
 
 		try {
-			setLoadingConversations(true);
+			if (!silent) setLoadingConversations(true);
 			const { data } = await axios.get(
 				`${API_URL}/api/support/all-conversations`,
 				requestConfig,
@@ -88,18 +98,21 @@ export default function SupportDashboard() {
 				setMessages([]);
 			}
 		} catch (error) {
-			toast.error(error.response?.data?.message || "فشل تحميل المحادثات");
+			if (!silent) {
+				toast.error(error.response?.data?.message || "فشل تحميل المحادثات");
+			}
 		} finally {
-			setLoadingConversations(false);
+			if (!silent) setLoadingConversations(false);
 		}
 	}, [requestConfig, token]);
 
 	const fetchUserMessages = useCallback(
-		async (userId) => {
+		async (userId, options = {}) => {
+			const { silent = false } = options;
 			if (!token || !userId) return;
 
 			try {
-				setLoadingMessages(true);
+				if (!silent) setLoadingMessages(true);
 				const { data } = await axios.get(
 					`${API_URL}/api/support/user-messages/${userId}`,
 					requestConfig,
@@ -107,10 +120,12 @@ export default function SupportDashboard() {
 
 				setMessages(Array.isArray(data.messages) ? data.messages : []);
 			} catch (error) {
-				setMessages([]);
-				toast.error(error.response?.data?.message || "فشل تحميل رسائل المستخدم");
+				if (!silent) {
+					setMessages([]);
+					toast.error(error.response?.data?.message || "فشل تحميل رسائل المستخدم");
+				}
 			} finally {
-				setLoadingMessages(false);
+				if (!silent) setLoadingMessages(false);
 			}
 		},
 		[requestConfig, token],
@@ -130,6 +145,47 @@ export default function SupportDashboard() {
 			messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
 		}
 	}, [messages]);
+
+	useEffect(() => {
+		if (!token) return undefined;
+
+		const socket = getSocket();
+		socket.emit("join:admin");
+
+		const handleIncoming = (incomingMessage) => {
+			if (!incomingMessage?.userId) return;
+
+			fetchConversations({ silent: true });
+
+			if (
+				selectedConversation?._id &&
+				String(selectedConversation._id) === String(incomingMessage.userId)
+			) {
+				appendMessageUnique(incomingMessage);
+			}
+		};
+
+		const handleConversationUpdated = ({ userId } = {}) => {
+			fetchConversations({ silent: true });
+			if (selectedConversation?._id && String(selectedConversation._id) === String(userId)) {
+				fetchUserMessages(selectedConversation._id, { silent: true });
+			}
+		};
+
+		socket.on("support:new-message", handleIncoming);
+		socket.on("support:conversation-updated", handleConversationUpdated);
+
+		return () => {
+			socket.off("support:new-message", handleIncoming);
+			socket.off("support:conversation-updated", handleConversationUpdated);
+		};
+	}, [
+		appendMessageUnique,
+		fetchConversations,
+		fetchUserMessages,
+		token,
+		selectedConversation?._id,
+	]);
 
 	async function handleSendReply(event) {
 		event.preventDefault();
@@ -153,7 +209,7 @@ export default function SupportDashboard() {
 			);
 
 			if (data?.newMessage) {
-				setMessages((prev) => [...prev, data.newMessage]);
+				appendMessageUnique(data.newMessage);
 			} else {
 				await fetchUserMessages(selectedConversation._id);
 			}

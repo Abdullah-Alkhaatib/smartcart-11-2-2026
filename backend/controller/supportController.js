@@ -1,4 +1,5 @@
 const {Support} = require('../model/SupportModel.js');
+const { getSocket } = require('../config/socket.js');
 
 // Create send message (user or admin)
 const sendMessage = async (req, res) => {
@@ -11,6 +12,13 @@ const sendMessage = async (req, res) => {
 
         const newMessage = new Support({userId, sender, message});
         await newMessage.save();
+
+        const io = getSocket();
+        if (io) {
+            io.to(`support:user:${userId}`).emit('support:new-message', newMessage);
+            io.to('support:admins').emit('support:new-message', newMessage);
+            io.to('support:admins').emit('support:conversation-updated', { userId });
+        }
 
         res.status(201).json({message: 'Message sent successfully', newMessage});
 
