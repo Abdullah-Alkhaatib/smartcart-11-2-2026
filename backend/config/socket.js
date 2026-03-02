@@ -108,6 +108,39 @@ function setUserOfflineIfNeeded(userId, socketId) {
   ).catch(() => {});
 }
 
+function activateSupportUserForSocket(socket, userId) {
+  if (!userId) return;
+
+  const normalizedUserId = String(userId);
+  const previousUserId = socket.data.supportUserId;
+
+  if (previousUserId && String(previousUserId) !== normalizedUserId) {
+    setUserOfflineIfNeeded(previousUserId, socket.id);
+    socket.leave(`support:user:${previousUserId}`);
+    broadcastUserSupportStatus(previousUserId);
+  }
+
+  socket.data.supportUserId = normalizedUserId;
+  setUserOnline(normalizedUserId, socket.id);
+  socket.join(`support:user:${normalizedUserId}`);
+
+  User.findByIdAndUpdate(
+    normalizedUserId,
+    { supportLastSeenAt: null },
+    { new: false },
+  ).catch(() => {});
+
+  broadcastUserSupportStatus(normalizedUserId);
+}
+
+function deactivateSupportUserForSocket(socket) {
+  const currentUserId = socket.data.supportUserId;
+  if (!currentUserId) return;
+
+  setUserOfflineIfNeeded(currentUserId, socket.id);
+  broadcastUserSupportStatus(currentUserId);
+}
+
 function initializeSocket(server) {
   const { Server } = require("socket.io");
 
@@ -122,26 +155,21 @@ function initializeSocket(server) {
     socket.data.supportUserId = null;
 
     socket.on("join:user", (userId) => {
-      if (!userId) return;
+      activateSupportUserForSocket(socket, userId);
+    });
 
-      const previousUserId = socket.data.supportUserId;
-      if (previousUserId && String(previousUserId) !== String(userId)) {
-        setUserOfflineIfNeeded(previousUserId, socket.id);
-        socket.leave(`support:user:${previousUserId}`);
-        broadcastUserSupportStatus(previousUserId);
+    socket.on("support:user:active", (payload) => {
+      if (typeof payload === "string") {
+        activateSupportUserForSocket(socket, payload);
+        return;
       }
 
-      socket.data.supportUserId = String(userId);
-      setUserOnline(userId, socket.id);
-      socket.join(`support:user:${userId}`);
+      const payloadUserId = payload?.userId;
+      activateSupportUserForSocket(socket, payloadUserId || socket.data.supportUserId);
+    });
 
-      User.findByIdAndUpdate(
-        String(userId),
-        { supportLastSeenAt: null },
-        { new: false },
-      ).catch(() => {});
-
-      broadcastUserSupportStatus(userId);
+    socket.on("support:user:inactive", () => {
+      deactivateSupportUserForSocket(socket);
     });
 
     socket.on("join:admin", () => {
@@ -181,11 +209,7 @@ function initializeSocket(server) {
     });
 
     socket.on("disconnect", () => {
-      const currentUserId = socket.data.supportUserId;
-      if (!currentUserId) return;
-
-      setUserOfflineIfNeeded(currentUserId, socket.id);
-      broadcastUserSupportStatus(currentUserId);
+      deactivateSupportUserForSocket(socket);
     });
   });
 

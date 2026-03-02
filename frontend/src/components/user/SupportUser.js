@@ -8,245 +8,303 @@ import { getSocket } from "../../utils/socket";
 import "./supportUser.css";
 
 export default function SupportUser() {
-	const [messages, setMessages] = useState([]);
-	const [messageText, setMessageText] = useState("");
-	const [loading, setLoading] = useState(false);
-	const [sending, setSending] = useState(false);
-	const [userId, setUserId] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [messageText, setMessageText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [userId, setUserId] = useState("");
 
-	const navigate = useNavigate();
-	const messagesContainerRef = useRef(null);
+  const navigate = useNavigate();
+  const messagesContainerRef = useRef(null);
 
-	const token = useMemo(() => localStorage.getItem("token"), []);
+  const token = useMemo(() => localStorage.getItem("token"), []);
 
-	const appendMessageUnique = useCallback((incomingMessage) => {
-		if (!incomingMessage?._id) return;
-		setMessages((prev) => {
-			if (prev.some((msg) => msg._id === incomingMessage._id)) return prev;
-			return [...prev, incomingMessage];
-		});
-	}, []);
+  const appendMessageUnique = useCallback((incomingMessage) => {
+    if (!incomingMessage?._id) return;
+    setMessages((prev) => {
+      if (prev.some((msg) => msg._id === incomingMessage._id)) return prev;
+      return [...prev, incomingMessage];
+    });
+  }, []);
 
-	const chatItems = useMemo(() => {
-		const items = [];
-		let previousDateKey = "";
+  const chatItems = useMemo(() => {
+    const items = [];
+    let previousDateKey = "";
 
-		messages.forEach((msg, index) => {
-			const createdAt = msg?.createdAt ? new Date(msg.createdAt) : null;
-			if (!createdAt || Number.isNaN(createdAt.getTime())) {
-				items.push({ type: "message", data: msg, key: msg?._id || `msg-${index}` });
-				return;
-			}
+    messages.forEach((msg, index) => {
+      const createdAt = msg?.createdAt ? new Date(msg.createdAt) : null;
+      if (!createdAt || Number.isNaN(createdAt.getTime())) {
+        items.push({
+          type: "message",
+          data: msg,
+          key: msg?._id || `msg-${index}`,
+        });
+        return;
+      }
 
-			const dateKey = `${createdAt.getFullYear()}-${createdAt.getMonth()}-${createdAt.getDate()}`;
-			if (dateKey !== previousDateKey) {
-				items.push({
-					type: "date",
-					key: `date-${dateKey}-${index}`,
-					label: createdAt.toLocaleDateString("ar-EG", {
-						year: "numeric",
-						month: "long",
-						day: "numeric",
-					}),
-				});
-				previousDateKey = dateKey;
-			}
+      const dateKey = `${createdAt.getFullYear()}-${createdAt.getMonth()}-${createdAt.getDate()}`;
+      if (dateKey !== previousDateKey) {
+        items.push({
+          type: "date",
+          key: `date-${dateKey}-${index}`,
+          label: createdAt.toLocaleDateString("ar-EG", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+        });
+        previousDateKey = dateKey;
+      }
 
-			items.push({
-				type: "message",
-				key: msg?._id || `msg-${dateKey}-${index}`,
-				data: msg,
-				time: createdAt.toLocaleTimeString("ar-EG", {
-					hour: "2-digit",
-					minute: "2-digit",
-				}),
-			});
-		});
+      items.push({
+        type: "message",
+        key: msg?._id || `msg-${dateKey}-${index}`,
+        data: msg,
+        time: createdAt.toLocaleTimeString("ar-EG", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      });
+    });
 
-		return items;
-	}, [messages]);
+    return items;
+  }, [messages]);
 
-	const fetchProfile = useCallback(async () => {
-		if (!token) {
-			navigate("/login");
-			return;
-		}
+  const fetchProfile = useCallback(async () => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
-		const { data } = await axios.get(`${API_URL}/api/users/profile`, {
-			headers: { Authorization: `Bearer ${token}` },
-		});
+    const { data } = await axios.get(`${API_URL}/api/users/profile`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-		setUserId(data._id);
-	}, [navigate, token]);
+    setUserId(data._id);
+  }, [navigate, token]);
 
-	const fetchMyMessages = useCallback(async (options = {}) => {
-		const { silent = false } = options;
-		if (!token) return;
+  const fetchMyMessages = useCallback(
+    async (options = {}) => {
+      const { silent = false } = options;
+      if (!token) return;
 
-		try {
-			if (!silent) setLoading(true);
-			const { data } = await axios.get(`${API_URL}/api/support/user-messages`, {
-				headers: { Authorization: `Bearer ${token}` },
-			});
+      try {
+        if (!silent) setLoading(true);
+        const { data } = await axios.get(
+          `${API_URL}/api/support/user-messages`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
 
-			setMessages(Array.isArray(data.messages) ? data.messages : []);
-		} catch (error) {
-			if (!silent) {
-				toast.error(error.response?.data?.error || "فشل تحميل رسائل الدعم");
-			}
-		} finally {
-			if (!silent) setLoading(false);
-		}
-	}, [token]);
+        setMessages(Array.isArray(data.messages) ? data.messages : []);
+      } catch (error) {
+        if (!silent) {
+          toast.error(error.response?.data?.error || "فشل تحميل رسائل الدعم");
+        }
+      } finally {
+        if (!silent) setLoading(false);
+      }
+    },
+    [token],
+  );
 
-	useEffect(() => {
-		async function loadData() {
-			try {
-				await fetchProfile();
-				await fetchMyMessages();
-			} catch (error) {
-				toast.error(error.response?.data?.message || "يرجى تسجيل الدخول أولًا");
-				navigate("/login");
-			}
-		}
+  useEffect(() => {
+    async function loadData() {
+      try {
+        await fetchProfile();
+        await fetchMyMessages();
+      } catch (error) {
+        toast.error(error.response?.data?.message || "يرجى تسجيل الدخول أولًا");
+        navigate("/login");
+      }
+    }
 
-		loadData();
-	}, [fetchMyMessages, fetchProfile, navigate]);
+    loadData();
+  }, [fetchMyMessages, fetchProfile, navigate]);
 
-	useEffect(() => {
-		if (messagesContainerRef.current) {
-			messagesContainerRef.current.scrollTo({
-				top: messagesContainerRef.current.scrollHeight,
-				behavior: "smooth",
-			});
-		}
-	}, [messages]);
+  useEffect(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [messages]);
 
-	useEffect(() => {
-		if (!token || !userId) return undefined;
+  useEffect(() => {
+    if (!token || !userId) return undefined;
 
-		const socket = getSocket();
-		socket.emit("join:user", userId);
+    const socket = getSocket();
 
-		const handleIncoming = (incomingMessage) => {
-			if (String(incomingMessage?.userId) !== String(userId)) return;
-			appendMessageUnique(incomingMessage);
-		};
+    const emitUserActive = () => {
+      socket.emit("join:user", userId);
+      socket.emit("support:user:active", { userId });
+    };
 
-		socket.on("support:new-message", handleIncoming);
+    const emitUserInactive = () => {
+      socket.emit("support:user:inactive");
+    };
 
-		return () => {
-			socket.off("support:new-message", handleIncoming);
-		};
-	}, [appendMessageUnique, token, userId]);
+    emitUserActive();
 
-	async function handleSend(event) {
-		event.preventDefault();
+    const handleIncoming = (incomingMessage) => {
+      if (String(incomingMessage?.userId) !== String(userId)) return;
+      appendMessageUnique(incomingMessage);
+    };
 
-		const trimmedMessage = messageText.trim();
-		if (!trimmedMessage) return;
+    const handleConnect = () => {
+      emitUserActive();
+    };
 
-		if (!userId) {
-			toast.error("تعذر معرفة المستخدم الحالي");
-			return;
-		}
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        emitUserInactive();
+        return;
+      }
 
-		try {
-			setSending(true);
+      emitUserActive();
+    };
 
-			const payload = {
-				userId,
-				sender: "user",
-				message: trimmedMessage,
-			};
+    const handlePageHide = () => {
+      emitUserInactive();
+    };
 
-			const { data } = await axios.post(`${API_URL}/api/support/send-message`, payload, {
-				headers: { Authorization: `Bearer ${token}` },
-			});
+    const handlePageShow = () => {
+      emitUserActive();
+    };
 
-			if (data?.newMessage) {
-				appendMessageUnique(data.newMessage);
-			} else {
-				await fetchMyMessages();
-			}
+    socket.on("support:new-message", handleIncoming);
+    socket.on("connect", handleConnect);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("pagehide", handlePageHide);
+    window.addEventListener("pageshow", handlePageShow);
+    window.addEventListener("focus", handlePageShow);
 
-			setMessageText("");
-		} catch (error) {
-			toast.error(error.response?.data?.error || "فشل إرسال الرسالة");
-		} finally {
-			setSending(false);
-		}
-	}
+    return () => {
+      emitUserInactive();
+      socket.off("support:new-message", handleIncoming);
+      socket.off("connect", handleConnect);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("pagehide", handlePageHide);
+      window.removeEventListener("pageshow", handlePageShow);
+      window.removeEventListener("focus", handlePageShow);
+    };
+  }, [appendMessageUnique, token, userId]);
 
-	return (
-		<section className="support-user" dir="rtl">
-			<header className="support-user__header">
-				<div className="support-user__headline">
-					<Headset size={26} />
-					<div>
-						<h1>الدعم الفني</h1>
-						<p>تواصل معنا وسنقوم بالرد عليك بأسرع وقت.</p>
-					</div>
-				</div>
-			</header>
+  async function handleSend(event) {
+    event.preventDefault();
 
-			<div className="support-user__chat-box">
-				<div className="support-user__chat-header">
-					<MessageCircle size={18} />
-					<span>المحادثة</span>
-					<small>
-						<Clock3 size={14} />
-						آخر التحديثات مباشرة
-					</small>
-				</div>
+    const trimmedMessage = messageText.trim();
+    if (!trimmedMessage) return;
 
-				<div className="support-user__messages" ref={messagesContainerRef}>
-					{loading ? (
-						<p className="support-user__state">جاري تحميل الرسائل...</p>
-					) : messages.length === 0 ? (
-						<p className="support-user__state">لا توجد رسائل بعد، ابدأ محادثتك الآن.</p>
-					) : (
-						chatItems.map((item) => {
-							if (item.type === "date") {
-								return (
-									<div key={item.key} className="support-user__date-separator">
-										<span>{item.label}</span>
-									</div>
-								);
-							}
+    if (!userId) {
+      toast.error("تعذر معرفة المستخدم الحالي");
+      return;
+    }
 
-							const msg = item.data;
-							return (
-								<div
-									key={item.key}
-									className={`support-user__message ${
-										msg.sender === "user"
-											? "support-user__message--me"
-											: "support-user__message--admin"
-									}`}
-								>
-									<p>{msg.message}</p>
-									<span>{item.time || "--:--"}</span>
-								</div>
-							);
-						})
-					)}
-				</div>
+    try {
+      setSending(true);
 
-				<form className="support-user__composer" onSubmit={handleSend}>
-					<input
-						type="text"
-						value={messageText}
-						onChange={(event) => setMessageText(event.target.value)}
-						placeholder="اكتب رسالتك هنا..."
-						disabled={sending}
-					/>
-					<button type="submit" disabled={sending || !messageText.trim()}>
-						<Send size={16} />
-						{sending ? "جاري الإرسال..." : "إرسال"}
-					</button>
-				</form>
-			</div>
-		</section>
-	);
+      const payload = {
+        userId,
+        sender: "user",
+        message: trimmedMessage,
+      };
+
+      const { data } = await axios.post(
+        `${API_URL}/api/support/send-message`,
+        payload,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+
+      if (data?.newMessage) {
+        appendMessageUnique(data.newMessage);
+      } else {
+        await fetchMyMessages();
+      }
+
+      setMessageText("");
+    } catch (error) {
+      toast.error(error.response?.data?.error || "فشل إرسال الرسالة");
+    } finally {
+      setSending(false);
+    }
+  }
+
+  return (
+    <section className="support-user" dir="rtl">
+      <header className="support-user__header">
+        <div className="support-user__headline">
+          <Headset size={26} />
+          <div>
+            <h1>الدعم الفني</h1>
+            <p>تواصل معنا وسنقوم بالرد عليك بأسرع وقت.</p>
+          </div>
+        </div>
+      </header>
+
+      <div className="support-user__chat-box">
+        <div className="support-user__chat-header">
+          <MessageCircle size={18} />
+          <span>المحادثة</span>
+          <small>
+            <Clock3 size={14} />
+            آخر التحديثات مباشرة
+          </small>
+        </div>
+
+        <div className="support-user__messages" ref={messagesContainerRef}>
+          {loading ? (
+            <p className="support-user__state">جاري تحميل الرسائل...</p>
+          ) : messages.length === 0 ? (
+            <p className="support-user__state">
+              لا توجد رسائل بعد، ابدأ محادثتك الآن.
+            </p>
+          ) : (
+            chatItems.map((item) => {
+              if (item.type === "date") {
+                return (
+                  <div key={item.key} className="support-user__date-separator">
+                    <span>{item.label}</span>
+                  </div>
+                );
+              }
+
+              const msg = item.data;
+              return (
+                <div
+                  key={item.key}
+                  className={`support-user__message ${
+                    msg.sender === "user"
+                      ? "support-user__message--me"
+                      : "support-user__message--admin"
+                  }`}
+                >
+                  <p>{msg.message}</p>
+                  <span>{item.time || "--:--"}</span>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        <form className="support-user__composer" onSubmit={handleSend}>
+          <input
+            type="text"
+            value={messageText}
+            onChange={(event) => setMessageText(event.target.value)}
+            placeholder="اكتب رسالتك هنا..."
+            disabled={sending}
+          />
+          <button type="submit" disabled={sending || !messageText.trim()}>
+            <Send size={16} />
+            {sending ? "جاري الإرسال..." : "إرسال"}
+          </button>
+        </form>
+      </div>
+    </section>
+  );
 }
