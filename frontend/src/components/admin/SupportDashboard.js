@@ -17,6 +17,50 @@ export default function SupportDashboard() {
 	const messagesEndRef = useRef(null);
 	const token = useMemo(() => localStorage.getItem("token"), []);
 
+	const chatItems = useMemo(() => {
+		const items = [];
+		let previousDateKey = "";
+
+		messages.forEach((message, index) => {
+			const createdAt = message?.createdAt ? new Date(message.createdAt) : null;
+			if (!createdAt || Number.isNaN(createdAt.getTime())) {
+				items.push({
+					type: "message",
+					key: message?._id || `msg-${index}`,
+					data: message,
+					time: "--:--",
+				});
+				return;
+			}
+
+			const dateKey = `${createdAt.getFullYear()}-${createdAt.getMonth()}-${createdAt.getDate()}`;
+			if (dateKey !== previousDateKey) {
+				items.push({
+					type: "date",
+					key: `date-${dateKey}-${index}`,
+					label: createdAt.toLocaleDateString("ar-EG", {
+						year: "numeric",
+						month: "long",
+						day: "numeric",
+					}),
+				});
+				previousDateKey = dateKey;
+			}
+
+			items.push({
+				type: "message",
+				key: message?._id || `msg-${dateKey}-${index}`,
+				data: message,
+				time: createdAt.toLocaleTimeString("ar-EG", {
+					hour: "2-digit",
+					minute: "2-digit",
+				}),
+			});
+		});
+
+		return items;
+	}, [messages]);
+
 	const requestConfig = useMemo(
 		() => ({
 			headers: {
@@ -204,27 +248,30 @@ export default function SupportDashboard() {
 								) : messages.length === 0 ? (
 									<p className="sdb-state">لا توجد رسائل في هذه المحادثة.</p>
 								) : (
-									messages.map((message) => (
-										<article
-											key={message._id}
-											className={`sdb-message ${
-												message.sender === "admin"
-													? "sdb-message--admin"
-													: "sdb-message--user"
-											}`}
-										>
-											<p>{message.message}</p>
-											<span>
-												{new Date(message.createdAt).toLocaleString("ar-EG", {
-													year: "numeric",
-													month: "2-digit",
-													day: "2-digit",
-													hour: "2-digit",
-													minute: "2-digit",
-												})}
-											</span>
-										</article>
-									))
+									chatItems.map((item) => {
+										if (item.type === "date") {
+											return (
+												<div key={item.key} className="sdb-date-separator">
+													<span>{item.label}</span>
+												</div>
+											);
+										}
+
+										const message = item.data;
+										return (
+											<article
+												key={item.key}
+												className={`sdb-message ${
+													message.sender === "admin"
+														? "sdb-message--admin"
+														: "sdb-message--user"
+												}`}
+											>
+												<p>{message.message}</p>
+												<span>{item.time}</span>
+											</article>
+										);
+									})
 								)}
 
 								<div ref={messagesEndRef} />

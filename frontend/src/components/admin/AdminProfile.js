@@ -207,10 +207,6 @@ const AdminProfile = () => {
               <h3>ملخص سريع</h3>
               <ul className="profile-stats">
                 <li>
-                  <span>المعرف</span>
-                  <strong className="input-ltr">{profile?._id || "--"}</strong>
-                </li>
-                <li>
                   <span>البريد الالكتروني</span>
                   <strong className="input-ltr">
                     {profile?.email || "--"}

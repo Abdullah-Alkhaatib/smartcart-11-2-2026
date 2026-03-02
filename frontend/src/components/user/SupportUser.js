@@ -18,6 +18,45 @@ export default function SupportUser() {
 
 	const token = useMemo(() => localStorage.getItem("token"), []);
 
+	const chatItems = useMemo(() => {
+		const items = [];
+		let previousDateKey = "";
+
+		messages.forEach((msg, index) => {
+			const createdAt = msg?.createdAt ? new Date(msg.createdAt) : null;
+			if (!createdAt || Number.isNaN(createdAt.getTime())) {
+				items.push({ type: "message", data: msg, key: msg?._id || `msg-${index}` });
+				return;
+			}
+
+			const dateKey = `${createdAt.getFullYear()}-${createdAt.getMonth()}-${createdAt.getDate()}`;
+			if (dateKey !== previousDateKey) {
+				items.push({
+					type: "date",
+					key: `date-${dateKey}-${index}`,
+					label: createdAt.toLocaleDateString("ar-EG", {
+						year: "numeric",
+						month: "long",
+						day: "numeric",
+					}),
+				});
+				previousDateKey = dateKey;
+			}
+
+			items.push({
+				type: "message",
+				key: msg?._id || `msg-${dateKey}-${index}`,
+				data: msg,
+				time: createdAt.toLocaleTimeString("ar-EG", {
+					hour: "2-digit",
+					minute: "2-digit",
+				}),
+			});
+		});
+
+		return items;
+	}, [messages]);
+
 	const fetchProfile = useCallback(async () => {
 		if (!token) {
 			navigate("/login");
@@ -137,25 +176,30 @@ export default function SupportUser() {
 					) : messages.length === 0 ? (
 						<p className="support-user__state">لا توجد رسائل بعد، ابدأ محادثتك الآن.</p>
 					) : (
-						messages.map((msg) => (
-							<div
-								key={msg._id}
-								className={`support-user__message ${
-									msg.sender === "user" ? "support-user__message--me" : "support-user__message--admin"
-								}`}
-							>
-								<p>{msg.message}</p>
-								<span>
-									{new Date(msg.createdAt).toLocaleString("ar-EG", {
-										hour: "2-digit",
-										minute: "2-digit",
-										year: "numeric",
-										month: "2-digit",
-										day: "2-digit",
-									})}
-								</span>
-							</div>
-						))
+						chatItems.map((item) => {
+							if (item.type === "date") {
+								return (
+									<div key={item.key} className="support-user__date-separator">
+										<span>{item.label}</span>
+									</div>
+								);
+							}
+
+							const msg = item.data;
+							return (
+								<div
+									key={item.key}
+									className={`support-user__message ${
+										msg.sender === "user"
+											? "support-user__message--me"
+											: "support-user__message--admin"
+									}`}
+								>
+									<p>{msg.message}</p>
+									<span>{item.time || "--:--"}</span>
+								</div>
+							);
+						})
 					)}
 				</div>
 
