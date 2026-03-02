@@ -19,18 +19,10 @@ import ProductDashboard from "./ProductDashboard";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import ArchivedProducts from "./ArchivedProducts";
 import ArchivedCategories from "./ArchivedCategories";
-// import ProductDashboard from './ProductDashboard';
-// import MessageIcon from '@mui/icons-material/Message';
-// import ContentDashboard from './ContentDashboard';
-// import AdminSupport from './AdminSupport';
-// import orders icon
-// import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-// import OrdersDashboards from './OrdersDashboards';
 import ContactMailIcon from "@mui/icons-material/ContactMail";
 import ContactUsAdmin from "./ContactUsAdmin";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import SupportDashboard from "./SupportDashboard";
-// order icon 
 import OrdersIcon from "@mui/icons-material/ShoppingCart";
 import OrdersDashboard from "./OrdersDashboard";
 

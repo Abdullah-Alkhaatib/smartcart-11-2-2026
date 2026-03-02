@@ -46,6 +46,8 @@ export default function Login() {
         <form onSubmit={handleSubmit}>
           <input
             type="email"
+            name="email"
+            autoComplete="email"
             placeholder="البريد الإلكتروني"
             dir="ltr"
             value={email}
@@ -56,6 +58,8 @@ export default function Login() {
           <div className="password-wrapper">
             <input
               type={showPassword ? "text" : "password"}
+              name="password"
+              autoComplete="current-password"
               placeholder="كلمة المرور"
               dir="auto"
               value={password}

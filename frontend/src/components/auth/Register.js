@@ -64,6 +64,8 @@ export default function Register() {
         <form onSubmit={handleSubmit}>
           <input
             type="text"
+            name="username"
+            autoComplete="username"
             placeholder="اسم المستخدم"
             dir="auto"
             value={username}
@@ -73,6 +75,8 @@ export default function Register() {
 
           <input
             type="email"
+            name="email"
+            autoComplete="email"
             placeholder="البريد الإلكتروني"
             dir="ltr"
             value={email}
@@ -84,6 +88,8 @@ export default function Register() {
           <div className="password-wrapper">
             <input
               type={showPassword ? "text" : "password"}
+              name="password"
+              autoComplete="new-password"
               placeholder="كلمة المرور"
               dir="auto"
               value={password}
@@ -103,6 +109,8 @@ export default function Register() {
           <div className="password-wrapper">
             <input
               type={showConfirmPassword ? "text" : "password"}
+              name="confirmPassword"
+              autoComplete="new-password"
               placeholder="تأكيد كلمة المرور"
               dir="auto"
               value={confirmPassword}

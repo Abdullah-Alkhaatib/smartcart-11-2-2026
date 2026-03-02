@@ -3,7 +3,7 @@ import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 import { Trash2, Users, RefreshCw } from "lucide-react";
 import toast from "react-hot-toast";
-import CreateUsers from "./CreateUsers";
+// import CreateUsers from "./CreateUsers";
 import API_URL from "../../config/api";
 
 const DashboardUsers = () => {
@@ -90,7 +90,7 @@ const DashboardUsers = () => {
       </header>
 
       <div className="dashboard-users__grid">
-        <CreateUsers onCreated={fetchUsers} />
+        {/* <CreateUsers onCreated={fetchUsers} /> */}
 
         <div className="users-list">
           <div className="users-list__head">
