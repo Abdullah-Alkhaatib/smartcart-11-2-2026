@@ -104,7 +104,7 @@ function setUserOfflineIfNeeded(userId, socketId) {
   User.findByIdAndUpdate(
     normalizedUserId,
     { supportLastSeenAt: lastSeenAt },
-    { new: false },
+    { returnDocument: "before" },
   ).catch(() => {});
 }
 
@@ -127,7 +127,7 @@ function activateSupportUserForSocket(socket, userId) {
   User.findByIdAndUpdate(
     normalizedUserId,
     { supportLastSeenAt: null },
-    { new: false },
+    { returnDocument: "before" },
   ).catch(() => {});
 
   broadcastUserSupportStatus(normalizedUserId);
