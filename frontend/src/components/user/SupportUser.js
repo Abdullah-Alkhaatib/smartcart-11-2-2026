@@ -18,34 +18,6 @@ export default function SupportUser() {
   const messagesContainerRef = useRef(null);
 
   const token = useMemo(() => localStorage.getItem("token"), []);
-  const petals = useMemo(
-    () =>
-      Array.from({ length: 15 }, () => ({
-        left: `${Math.random() * 100}%`,
-        animationDelay: `${Math.random() * 5}s`,
-      })),
-    [],
-  );
-
-  const stars = useMemo(
-    () =>
-      Array.from({ length: 12 }, () => ({
-        top: `${Math.random() * 100}%`,
-        left: `${Math.random() * 100}%`,
-        animationDelay: `${Math.random() * 3}s`,
-      })),
-    [],
-  );
-
-  const flyingLetters = useMemo(
-    () =>
-      Array.from({ length: 8 }, () => ({
-        left: `${Math.random() * 100}%`,
-        animationDelay: `${Math.random() * 6}s`,
-        animationDuration: `${8 + Math.random() * 4}s`,
-      })),
-    [],
-  );
 
   const appendMessageUnique = useCallback((incomingMessage) => {
     if (!incomingMessage?._id) return;
@@ -264,82 +236,6 @@ export default function SupportUser() {
 
   return (
     <section className="support-user" dir="rtl">
-      <div className="support-user__nana-bg" aria-hidden="true">
-        <div className="support-user__petals">
-          {petals.map((petalStyle, index) => (
-            <span
-              key={`petal-${index}`}
-              className="support-user__petal"
-              style={petalStyle}
-            />
-          ))}
-        </div>
-
-        <div className="support-user__roses">
-          <div className="support-user__rose support-user__rose-1">✿</div>
-          <div className="support-user__rose support-user__rose-2">✿</div>
-          <div className="support-user__rose support-user__rose-3">✿</div>
-          <div className="support-user__rose support-user__rose-4">✿</div>
-          <div className="support-user__rose support-user__rose-5">✿</div>
-          <div className="support-user__rose support-user__rose-6">✿</div>
-        </div>
-
-        <div className="support-user__butterflies">
-          <div className="support-user__butterfly support-user__butterfly-1">🦋</div>
-          <div className="support-user__butterfly support-user__butterfly-2">🦋</div>
-          <div className="support-user__butterfly support-user__butterfly-3">🦋</div>
-          <div className="support-user__butterfly support-user__butterfly-4">🦋</div>
-        </div>
-
-        <div className="support-user__stars">
-          {stars.map((starStyle, index) => (
-            <div
-              key={`star-${index}`}
-              className="support-user__star"
-              style={starStyle}
-            >
-              ⭐
-            </div>
-          ))}
-        </div>
-
-        <div className="support-user__glowing-hearts">
-          <div className="support-user__growing-heart support-user__heart-1">💕</div>
-          <div className="support-user__growing-heart support-user__heart-2">💕</div>
-          <div className="support-user__growing-heart support-user__heart-3">💕</div>
-        </div>
-
-        <div className="support-user__flying-letters">
-          {flyingLetters.map((letterStyle, index) => (
-            <div
-              key={`letter-${index}`}
-              className="support-user__flying-n"
-              style={letterStyle}
-            >
-              N
-            </div>
-          ))}
-        </div>
-
-        <div className="support-user__heart-wrapper">
-          <div className="support-user__heart">
-            <div className="support-user__heart-text">Nana</div>
-          </div>
-          <div className="support-user__sparkles">
-            <span className="support-user__sparkle">✨</span>
-            <span className="support-user__sparkle">✨</span>
-            <span className="support-user__sparkle">✨</span>
-            <span className="support-user__sparkle">💫</span>
-            <span className="support-user__sparkle">💫</span>
-            <span className="support-user__sparkle">✨</span>
-          </div>
-        </div>
-
-        <h2 className="support-user__nana-title">نعنوع الشطورة</h2>
-        {/* <p className="support-user__nana-subtitle">نعنوعي</p> */}
-      </div>
-
-      <div className="support-user__content">
       <header className="support-user__header">
         <div className="support-user__headline">
           <Headset size={26} />
@@ -408,7 +304,6 @@ export default function SupportUser() {
             {sending ? "جاري الإرسال..." : "إرسال"}
           </button>
         </form>
-      </div>
       </div>
     </section>
   );
