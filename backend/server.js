@@ -13,9 +13,41 @@ const server = http.createServer(app);
 
 connectToDB();
 
+const defaultAllowedOrigins = [
+  "http://localhost:3000",
+  "https://smart-cartt.netlify.app",
+  "https://smartcart-11-2-2026.netlify.app",
+];
+
+const envAllowedOrigins = [
+  process.env.CLIENT_URL,
+  process.env.CLIENT_URLS,
+  process.env.FRONTEND_URL,
+]
+  .filter(Boolean)
+  .flatMap((value) =>
+    value
+      .split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean),
+  );
+
+const allowedOrigins = [...new Set([...defaultAllowedOrigins, ...envAllowedOrigins])];
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: (origin, callback) => {
+      // Allow requests without an origin (curl/Postman/server-to-server).
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true,
   }),
 );
