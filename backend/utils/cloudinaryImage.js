@@ -7,6 +7,17 @@ const uploadImageBuffer = (file, options = {}) => {
     throw new Error("No image buffer provided");
   }
 
+  // Fail fast with a clear message when Cloudinary credentials are missing
+  if (
+    !process.env.CLOUDINARY_API_KEY ||
+    !process.env.CLOUDINARY_API_SECRET ||
+    !process.env.CLOUDINARY_CLOUD_NAME
+  ) {
+    throw new Error(
+      "Cloudinary credentials missing. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET in environment variables",
+    );
+  }
+
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
