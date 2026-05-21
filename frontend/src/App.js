@@ -13,7 +13,6 @@ import Products from "./pages/Products.js";
 import SearchResults from "./pages/SearchResults.js";
 import ProfileUser from "./components/user/ProfileUser.js";
 import Cart from "./pages/Cart.js";
-import Nana from "./pages/Nana.js";
 import Categories from "./pages/Categories.js";
 import ContactUsUser from "./components/user/ContactUsUser.js";
 import SupportUser from "./components/user/SupportUser.js";
@@ -83,7 +82,6 @@ function App() {
             <Route path="contactUs" element={<ContactUsUser />} />
             <Route path="support" element={<SupportUser />} />
             <Route path="orders" element={<OrdersUser />} />
-            <Route path="nana" element={<Nana />} />
           </Route>
         )}
 
