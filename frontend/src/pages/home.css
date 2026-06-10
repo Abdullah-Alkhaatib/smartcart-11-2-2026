@@ -81,6 +81,50 @@
 }
 
 /* ===== Categories Section ===== */
+.seo-copy-section {
+	margin-bottom: 3.5rem;
+}
+
+.seo-copy-card {
+	padding: 1.5rem 1.4rem;
+	border-radius: 18px;
+	border: 1px solid #e2e8f0;
+	background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+	box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+}
+
+.seo-copy-title {
+	font-size: 1.45rem;
+	font-weight: 800;
+	color: #0f172a;
+	margin-bottom: 0.75rem;
+}
+
+.seo-copy-text {
+	font-size: 1rem;
+	line-height: 1.8;
+	color: #334155;
+	margin-bottom: 1rem;
+}
+
+.seo-copy-list {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 0.75rem;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+.seo-copy-list li {
+	padding: 0.85rem 1rem;
+	border-radius: 12px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	color: #1e293b;
+	font-weight: 600;
+}
+
 .categories-section {
 	margin-bottom: 3.5rem;
 }
@@ -476,6 +520,10 @@
 	.hero-stats {
 		flex-direction: column;
 		gap: 0.75rem;
+	}
+
+	.seo-copy-card {
+		padding: 1.2rem;
 	}
 
 	.section-title {

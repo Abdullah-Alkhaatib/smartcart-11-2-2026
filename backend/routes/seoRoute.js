@@ -4,6 +4,7 @@ const { Product } = require("../model/ProductModel.js");
 const router = express.Router();
 
 function getPublicSiteBaseUrl() {
+  const preferredFrontendDomains = ["smart-cartt.netlify.app"];
   const directCandidates = [
     process.env.FRONTEND_URL,
     process.env.PUBLIC_URL,
@@ -16,6 +17,14 @@ function getPublicSiteBaseUrl() {
 
   for (const candidate of directCandidates) {
     if (candidate.startsWith("http://") || candidate.startsWith("https://")) {
+      if (
+        preferredFrontendDomains.some((domain) => candidate.includes(domain))
+      ) {
+        return candidate.replace(/\/$/, "");
+      }
+      if (candidate.includes("smartcart-11-2-2026.netlify.app")) {
+        continue;
+      }
       return candidate.replace(/\/$/, "");
     }
   }
@@ -37,7 +46,11 @@ function getPublicSiteBaseUrl() {
     return envOrigins[0].replace(/\/$/, "");
   }
 
-  return "https://smartcart-11-2-2026.netlify.app";
+  return "https://smart-cartt.netlify.app";
+}
+
+function getRobotsSitemapUrl() {
+  return `${getPublicSiteBaseUrl()}/sitemap.xml`;
 }
 
 function escapeXml(value) {
@@ -94,6 +107,29 @@ router.get("/sitemap.xml", async (req, res) => {
   } catch (error) {
     return res.status(500).send("Failed to generate sitemap");
   }
+});
+
+router.get("/robots.txt", (req, res) => {
+  const robots = [
+    "User-agent: *",
+    "Allow: /",
+    "Disallow: /login",
+    "Disallow: /register",
+    "Disallow: /cart",
+    "Disallow: /profile",
+    "Disallow: /orders",
+    "Disallow: /search-results",
+    "Disallow: /dashboard",
+    "Disallow: /users",
+    "Disallow: /archived-categories",
+    "Disallow: /archived-products",
+    "Disallow: /logout",
+    `Sitemap: ${getRobotsSitemapUrl()}`,
+    "",
+  ].join("\n");
+
+  res.set("Content-Type", "text/plain; charset=utf-8");
+  return res.send(robots);
 });
 
 module.exports = router;
