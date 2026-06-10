@@ -4,7 +4,6 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { ShoppingCart, ArrowRight, Package, Tag } from "lucide-react";
 import { useCart } from "../components/context/CartContext";
-import JsonLd from "../components/JsonLd";
 import API_URL from "../config/api";
 import "./productDetails.css";
 
@@ -129,34 +128,10 @@ export default function ProductDetails() {
     product.discount > 0
       ? (product.price - (product.price * product.discount) / 100).toFixed(2)
       : product.price;
-  const productSchema = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.name,
-    description: product.description,
-    image: product.images
-      .map((image) => (image?.url ? resolveImageUrl(image.url) : null))
-      .filter(Boolean),
-    brand: {
-      "@type": "Brand",
-      name: "SmartCart",
-    },
-    offers: {
-      "@type": "Offer",
-      url: `${window.location.origin}/product/${product._id}`,
-      priceCurrency: "KWD",
-      price: String(finalPrice),
-      availability:
-        selectedImage.stock > 0
-          ? "https://schema.org/InStock"
-          : "https://schema.org/OutOfStock",
-      itemCondition: "https://schema.org/NewCondition",
-    },
-  };
+  // product JSON-LD removed
 
   return (
     <div className="product-details-container">
-      <JsonLd id="product-schema" data={productSchema} />
       <button onClick={() => navigate(-1)} className="back-button">
         <ArrowRight size={18} />
         <span>رجوع</span>

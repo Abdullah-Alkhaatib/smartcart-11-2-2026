@@ -6,7 +6,6 @@ import { Grid3X3, Layers, ArrowLeft } from "lucide-react";
 import "./categories.css";
 import API_URL from "../config/api";
 import { useProductContext } from "../components/context/ProductContext";
-import JsonLd from "../components/JsonLd";
 
 export default function Categories() {
   const [categories, setCategories] = useState([]);
@@ -55,29 +54,10 @@ export default function Categories() {
     window.scrollTo(0, 0);
   };
 
-  const categoriesSchema = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    name: "فئات SmartCart",
-    url: `${window.location.origin}/categories`,
-    description: "استكشف فئات SmartCart لتصل إلى المنتج المناسب بسرعة وسهولة.",
-  };
-
-  const categoriesListSchema = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: "فئات SmartCart",
-    itemListElement: categories.map((category, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: category.name,
-    })),
-  };
+  // categories JSON-LD removed
 
   return (
     <section className="categories-page" dir="rtl">
-      <JsonLd id="categories-collection-schema" data={categoriesSchema} />
-      <JsonLd id="categories-list-schema" data={categoriesListSchema} />
       <div className="categories-header">
         <div className="categories-header__title">
           <Layers size={24} />

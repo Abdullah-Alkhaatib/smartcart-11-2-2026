@@ -17,7 +17,7 @@ import Categories from "./pages/Categories.js";
 import ContactUsUser from "./components/user/ContactUsUser.js";
 import SupportUser from "./components/user/SupportUser.js";
 import OrdersUser from "./components/user/OrdersUser.js";
-import SeoManager from "./components/SeoManager.js";
+// SeoManager removed per request
 
 function App() {
   const { role, loading } = useUserRole();
@@ -45,7 +45,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <SeoManager />
+      {/* SeoManager removed */}
       <Toaster
         position="top-center"
         toastOptions={{
