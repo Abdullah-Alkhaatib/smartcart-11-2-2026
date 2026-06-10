@@ -152,10 +152,9 @@ export default function Home() {
             <Zap size={16} />
             <span>عروض حصرية</span>
           </div>
-          <h1 className="hero-title">اهلاً بك في متجري</h1>
+          <h1 className="hero-title">مرحبًا بك في متجري </h1>
           <p className="hero-description">
-            اكتشف أفضل المنتجات والعروض في SmartCart مع تجربة تسوق سهلة وسريعة
-            داخل الكويت.
+            اكتشف أفضل المنتجات في الكويت بأسعار لا تُقاوم
           </p>
           <div className="hero-stats">
             <div className="stat-item">
@@ -169,22 +168,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* <section className="seo-copy-section">
-        <div className="seo-copy-card">
-          <h2 className="seo-copy-title">تسوّق من متجر إلكتروني في الكويت</h2>
-          <p className="seo-copy-text">
-            SmartCart متجر إلكتروني في الكويت يعرض منتجات متنوعة، فئات واضحة،
-            وعروض مميزة تساعدك توصل للي تحتاجه بسرعة. تصفح المنتجات، قارن
-            الخيارات، واطلب بكل سهولة من صفحة واحدة.
-          </p>
-          <ul className="seo-copy-list">
-            <li>منتجات وفئات محدثة باستمرار</li>
-            <li>تجربة بحث سهلة وسريعة</li>
-            <li>محتوى واضح يساعد Google يفهم المتجر</li>
-          </ul>
-        </div>
-      </section> */}
 
       {/* Categories Section */}
       {categories.length > 0 && (
