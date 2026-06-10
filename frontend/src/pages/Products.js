@@ -5,6 +5,7 @@ import "./products.css";
 import { useProductContext } from "../components/context/ProductContext";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../components/context/CartContext";
+import JsonLd from "../components/JsonLd";
 import {
   ShoppingCart,
   DollarSign,
@@ -242,8 +243,31 @@ export default function Products() {
     { label: "أكثر من 500 د.ك", min: 500, max: null, name: "500+" },
   ];
 
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "جميع المنتجات | SmartCart",
+    url: `${window.location.origin}/products`,
+    description:
+      "تصفح جميع منتجات SmartCart واختر من بين أفضل العروض والخيارات المتوفرة.",
+  };
+
+  const productListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "منتجات SmartCart",
+    itemListElement: products.slice(0, 20).map((product, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: `${window.location.origin}/product/${product._id}`,
+      name: product.name,
+    })),
+  };
+
   return (
     <div className="products-page" dir="rtl">
+      <JsonLd id="products-collection-schema" data={itemListSchema} />
+      <JsonLd id="products-list-schema" data={productListSchema} />
       {/* Header */}
       <div className="products-header">
         <div className="products-header-content">

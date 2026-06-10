@@ -32,7 +32,9 @@ const envAllowedOrigins = [
       .filter(Boolean),
   );
 
-const allowedOrigins = [...new Set([...defaultAllowedOrigins, ...envAllowedOrigins])];
+const allowedOrigins = [
+  ...new Set([...defaultAllowedOrigins, ...envAllowedOrigins]),
+];
 
 app.use(
   cors({
@@ -69,6 +71,7 @@ const cartRoute = require("./routes/cartRoute.js");
 const contactUsRoute = require("./routes/contactUsRoute.js");
 const supportRoute = require("./routes/supportRoute.js");
 const orderRoute = require("./routes/orderRoute.js");
+const seoRoute = require("./routes/seoRoute.js");
 
 app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);
@@ -78,6 +81,7 @@ app.use("/api/cart", cartRoute);
 app.use("/api/contact", contactUsRoute);
 app.use("/api/support", supportRoute);
 app.use("/api/orders", orderRoute);
+app.use("/", seoRoute);
 
 app.get("/", (req, res) => {
   res.send("SmartCart API is running 🚀");

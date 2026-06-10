@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { ShoppingCart, Star, TrendingUp, Zap, ChevronDown } from "lucide-react";
 import { useCart } from "../components/context/CartContext";
 import { useProductContext } from "../components/context/ProductContext";
+import JsonLd from "../components/JsonLd";
 import API_URL from "../config/api";
 import "./home.css";
 
@@ -80,6 +81,33 @@ export default function Home() {
 
   const displayedProducts = products.slice(0, visibleCount);
   const hasMoreProducts = products.length > visibleCount;
+  const siteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "SmartCart",
+    url: window.location.origin,
+    description:
+      "SmartCart متجر إلكتروني في الكويت لعرض المنتجات والفئات والعروض مع تجربة تسوق سهلة وسريعة.",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${window.location.origin}/search-results?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  };
+
+  const storeSchema = {
+    "@context": "https://schema.org",
+    "@type": "OnlineStore",
+    name: "SmartCart",
+    url: window.location.origin,
+    logo: `${window.location.origin}/favicon.png`,
+    areaServed: {
+      "@type": "Country",
+      name: "Kuwait",
+    },
+    description:
+      "SmartCart متجر إلكتروني في الكويت لعرض المنتجات والفئات والعروض.",
+  };
 
   // Handle category click
   function handleCategoryClick(categoryId) {
@@ -115,6 +143,8 @@ export default function Home() {
 
   return (
     <div className="home-container">
+      <JsonLd id="home-website-schema" data={siteSchema} />
+      <JsonLd id="home-store-schema" data={storeSchema} />
       {/* Hero Section */}
       <section className="hero-section">
         <div className="hero-content">
@@ -122,9 +152,9 @@ export default function Home() {
             <Zap size={16} />
             <span>عروض حصرية</span>
           </div>
-          <h1 className="hero-title">مرحبًا بك في متجري</h1>
+          <h1 className="hero-title">مرحبًا بك في متجري  </h1>
           <p className="hero-description">
-            اكتشف أفضل المنتجات بأسعار لا تُقاوم
+            اكتشف أفضل المنتجات في الكويت بأسعار لا تُقاوم
           </p>
           <div className="hero-stats">
             <div className="stat-item">
