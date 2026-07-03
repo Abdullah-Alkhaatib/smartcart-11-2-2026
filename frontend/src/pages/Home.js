@@ -125,7 +125,7 @@ export default function Home() {
           </div>
           <h1 className="hero-title">مرحبًا بك في متجري </h1>
           <p className="hero-description">
-            اكتشف أفضل المنتجات في الكويت بأسعار لا تُقاوم
+            اكتشف أفضل المنتجات بأسعار لا تُقاوم
           </p>
           <div className="hero-stats">
             <div className="stat-item">
