@@ -86,7 +86,7 @@ app.get("/", (req, res) => {
 });
 
 // start the server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 initializeSocket(server);
 
 server.listen(PORT, () => {
